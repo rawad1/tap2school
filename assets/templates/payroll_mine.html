@@ -1,0 +1,98 @@
+<div class="row page-titles">
+        <div class="col-md-6 col-8 align-self-center">
+            <h3 class="text-themecolor m-b-0 m-t-0">{{phrase.MyPayroll}}</h3>
+        </div>
+        <div class="col-md-6 col-4 align-self-center">
+    
+        </div>
+    </div>
+    
+    <div class="row" ng-show="views.list">
+        <div class="col-12">    
+            <div class="card">
+                <div class="card-block">
+                    <h4 class="card-title">{{phrase.MyPayroll}}</h4>
+                    <div class="form">
+    
+                        <table class="table table-bordered table-hover">
+                            <tbody>
+                                <tr>
+                                    <th>{{phrase.slryType}}</th>
+                                    <th>{{phrase.month}}</th>
+                                    <th>{{phrase.year}}</th>
+                                    <th class="no-print">{{phrase.Operations}}</th>
+                                </tr>
+                                <tr ng-repeat="my in my_payroll">
+                                    <td>
+                                        <span ng-show="my.salary_type == 'monthly'"> {{phrase.monthly}} </span>
+                                        <span ng-show="my.salary_type == 'hourly'"> {{phrase.hourly}} </span>
+                                    </td>
+                                    <td>{{my.pay_month}}</td>
+                                    <td>{{my.pay_year}}</td>
+                                    <td class="no-print">
+                                        <button ng-click="view_details(my.id)" type="button" class="btn btn-info btn-circle" title="{{phrase.Edit}}" tooltip><i class="fa fa-list"></i></button>
+                                    </td>
+                                </tr>
+                                <tr ng-show="!my_payroll.length"><td class="noTableData" colspan="5">{{phrase.noDataAvailable}}</td></tr>
+                            </tbody>
+                        </table>
+    
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" ng-show="views.details">
+        <div class="card-block">
+            <button class="btn btn-danger btn-sm pull-right" type="button" ng-click="changeView('list')"> {{phrase.Return}}</button>
+            <h4 class="card-title">{{phrase.slryPayHistory}}</h4>
+            <div class="form">
+
+                <table class="table table-bordered table-hover">
+                    <tbody>
+                        <tr>
+                            <th>{{phrase.salaryDetails}}</th>
+                            <th>
+                                {{my_details.salary_type}}<br/>
+                                <span ng-show="my_details.salary_type == 'monthly'">
+                                    {{phrase.netSalary}} : {{currency_symbol}}{{my_details.salary_value}}
+                                    <br/>
+                                    {{phrase.overtime}} : {{my_details.hour_count}} x {{currency_symbol}}{{my_details.hour_overtime}}
+                                </span>
+                                <span ng-show="my_details.salary_type == 'hourly'">
+                                    {{phrase.rate}} : {{my_details.hour_count}} x {{currency_symbol}}{{my_details.salary_value}}
+                                </span>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>{{phrase.salaryForDate}}</th>
+                            <th>
+                                {{my_details.pay_month}} / {{my_details.pay_year}}
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>{{phrase.Amount}}</th>
+                            <th>
+                                {{currency_symbol}}{{my_details.pay_amount}}
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>{{phrase.method}}</th>
+                            <th>
+                                {{my_details.pay_method}}
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>{{phrase.Comments}}</th>
+                            <th>
+                                {{my_details.pay_comments}}
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,340 @@
+<div class="row page-titles">
+    <div class="col-md-6 col-8 align-self-center">
+        <h3 class="text-themecolor m-b-0 m-t-0">{{phrase.lectures}}</h3>
+    </div>
+    <div class="col-md-6 col-4 align-self-center">
+
+    </div>
+</div>
+
+
+
+
+
+
+<div class="row" ng-show="views.listClasses">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-block">
+                <button ng-click="changeView('online')" class="btn pull-right btn-danger card-block-input-item">Live Lectures</button>
+                    <div class="pull-right card-block-input-group card-block-input-item">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="table_search" ng-model="searchText" placeholder="{{phrase.Search}}" class="form-control">
+                        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                    </div>
+                </div>
+                <h4 class="card-title">{{phrase.listClasses}}</h4>
+                <div class="row">
+                    <div class="col-sm-2" ng-repeat="singleClass in classes| filter:searchText">
+                        <a ng-click="classSubjects(singleClass.id)">
+                            <img src="/uploads/folder.png" style="width:5em;">
+                            <h5>{{singleClass.className}}</h5>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" ng-show="views.listSubjects">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-block">
+                <button ng-click="changeView('online')" class="btn pull-right btn-danger card-block-input-item">Live Lectures</button>
+                    <div class="pull-right card-block-input-group card-block-input-item">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="table_search" ng-model="searchText" placeholder="{{phrase.Search}}" class="form-control">
+                        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                    </div>
+                </div>
+                <h4 class="card-title">{{phrase.listSubjects}}</h4>
+                <div class="row">
+                    <div class="col-sm-2" ng-repeat="singleSubject in subjects| filter:searchText">
+                        <a ng-click="subjectLectures(singleSubject.id)" >
+                            <img src="/uploads/folder.png"  style="width:5em;">
+                            <h5>{{singleSubject.subjectTitle}}</h5>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row" ng-show="views.list">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-block">
+                <button ng-click="changeView('online')" class="btn pull-right btn-danger card-block-input-item">Live Lectures</button>
+
+                <button ng-click="changeView('add')" class="btn pull-right btn-success card-block-input-item">{{phrase.addLecture}}</button>
+                <!--<button ng-show="$root.can('lectures.addLecture')" ng-click="changeView('add')" class="btn pull-right btn-success card-block-input-item">{{phrase.addLecture}}</button>-->
+                <div class="pull-right card-block-input-group card-block-input-item">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="table_search" ng-model="searchText" placeholder="{{phrase.Search}}" class="form-control">
+                        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                    </div>
+                </div>
+                <h4 class="card-title">{{phrase.listLectures}}</h4>
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover">
+                        <tbody>
+                            <tr>
+                                <th>{{phrase.lectureTitle}}</th>
+                                <th>{{phrase.lectureDescription}}</th>
+                                <th>{{phrase.teacherId}}</th>
+                                <th>{{phrase.classId}}</th>
+                                <th>{{phrase.subjectId}}</th>
+                                <th>{{phrase.createAt}}</th>
+                                <!--                                <th ng-show="$root.can('lectures.editLecture') || $root.can('lectures.delLecture')">{{phrase.visibleCMS}}</th>
+                                                                <th style="width:170px;" ng-show="$root.can('lectures.editLecture') || $root.can('lectures.delLecture')">{{phrase.Operations}}</th>-->
+                                <th style="width:170px;">{{phrase.Operations}}</th>
+                            </tr>
+                            <tr ng-repeat="lecture in lectures| filter:searchText">
+                                <td><a href="portal#lectures/{{lecture.id}}">{{lecture.lectureTitle}}</a></td>
+                                <td><div ng-bind-html="lecture.lectureDescription"></div></td>
+                                <td>{{lecture.teacherId}}</td>
+                                <td>{{lecture.classId}}</td>
+                                <td>{{lecture.subjectId}}</td>
+                                <td>{{lecture.createAt}}</td>
+                                <!--                                <td ng-show="$root.can('lectures.editLecture') || $root.can('lectures.delLecture')">
+                                                                    <i ng-class="{'color_red':lecture.fe_active != 1,'color_green':lecture.fe_active == 1}" class="fa fa-lightbulb-o"></i>
+                                                                </td>
+                                                                <td ng-show="$root.can('lectures.editLecture') || $root.can('lectures.delLecture')">
+                                                                    <button ng-show="$root.can('lectures.editLecture')" ng-click="fe_status(lecture.id,$index)" type="button" class="btn btn-warning btn-circle" title="{{phrase.toggleCMS}}" tooltip><i class="fa fa-lightbulb-o"></i></button>
+                                                                    <button ng-show="$root.can('lectures.editLecture')" ng-click="edit(lecture.id)" type="button" class="btn btn-info btn-circle" title="{{phrase.Edit}}" tooltip><i class="fa fa-pencil"></i></button>
+                                                                    <button ng-show="$root.can('lectures.delLecture')" ng-click="remove(lecture,$index)" type="button" class="btn btn-danger btn-circle" title="{{phrase.Remove}}" tooltip><i class="fa fa-trash-o"></i></button>
+                                                                </td>-->
+                                <td>
+                                    <button ng-click="play(lecture.id)" type="button" class="btn btn-success btn-circle" title="{{phrase.Play}}" tooltip><i class="fa fa-play"></i></button>
+                                    <button ng-click="edit(lecture.id)" type="button" class="btn btn-info btn-circle" title="{{phrase.Edit}}" tooltip><i class="fa fa-pencil"></i></button>
+                                    <button ng-click="remove(lecture, $index)" type="button" class="btn btn-danger btn-circle" title="{{phrase.Remove}}" tooltip><i class="fa fa-trash-o"></i></button>
+                                </td>
+                            </tr>
+                            <tr ng-show="!lectures.length"><td class="noTableData" colspan="6">{{phrase.noLectures}}</td></tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" ng-show="views.online">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-block">
+                <h4 class="card-title">{{phrase.listLectures}}</h4>
+                <div class="table-responsive">
+                    <div class="row">
+                        <div class="col-sm-3" >
+                            <a  href="https://meet.tap2school.com/mathLecture2632020">
+                                <img src="/uploads/lecture.png" style="    display: block;height: 10em; width: auto; margin: 0 auto">
+                                <h4>Math Lecture 26/3/2020</h4>
+                            </a>
+                        </div>
+                        <div class="col-sm-3">
+                            <a href="https://meet.tap2school.com/historyLecture2632020">
+                                <img src="/uploads/lecture.png" style="    display: block;height: 10em; width: auto; margin: 0 auto">
+                                <h4>History Lecture 26/3/2020</h4>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" ng-show="views.play">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-block">  
+                <div class="row"> 
+                    <div class="col-sm-9">
+                        <h3>{{form.lecture.lectureTitle}}</h3>
+                    </div>
+                    <div class="col-sm-3">
+                        <button ng-click="changeView('list')" class="btn btn-danger btn-flat pull-right card-block-input-item">{{phrase.closeVideo}}</button>
+                    </div>
+                </div>
+                <br>
+                <div class="row"> 
+                    <div class="col-sm-12">
+                        <iframe id="video" width="100%" height="600" src="{{form.lecture.url}}" frameborder="0" allowfullscreen></iframe>
+
+                        <p>{{form.lecture.lectureDescription}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" ng-show="views.add">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-block">
+                <button ng-click="changeView('list')" class="btn btn-danger btn-flat pull-right card-block-input-item">{{phrase.cancelAdd}}</button>
+                <h4 class="card-title">{{phrase.addLecture}}</h4>
+                <div class="table-responsive">
+
+                    <form class="form-horizontal" name="addLecture" role="form" ng-upload="saveAdd(content)" method="post" action="{{'index.php/lectures'}}" novalidate>
+                        <div class="form-group row" ng-class="{'has-error': addEvent.lectureTitle.$invalid}">
+                            <label class="col-sm-2 text-right control-label col-form-label">{{phrase.lectureTitle}} * </label>
+                            <div class="col-sm-10">
+                                <input type="text" name="lectureTitle" ng-model="form.lectureTitle" class="form-control" required placeholder="{{phrase.lectureTitle}}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 text-right control-label col-form-label">{{phrase.lectureDescription}}</label>
+                            <div class="col-sm-10">
+                                <textarea ck-editor name="lectureDescription" class="form-control" ng-model="form.lectureDescription" placeholder="{{phrase.lectureDescription}}"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 text-right control-label col-form-label">{{phrase.teacherId}}</label>
+                            <div class="col-sm-10">
+                                <select class="form-control" ng-model="form.teacherId" name="teacherId" ng-change="classesList()" ng-init="">
+                                    <option ng-repeat="teacher in teachers" value="{{teacher.id}}">{{teacher.fullName}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 text-right control-label col-form-label">{{phrase.classId}}</label>
+                            <div class="col-sm-10">
+                                <select class="form-control" ng-model="form.classId" name="classId" ng-change="subjectList()">
+                                    <option ng-repeat="singleClass in classes" value="{{singleClass.id}}">{{singleClass.className}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 text-right control-label col-form-label">{{phrase.subjectId}}</label>
+                            <div class="col-sm-10">
+                                <select class="form-control" ng-model="form.subjectId" name="subjectId" >
+                                    <option ng-repeat="subject in subjects" value="{{subject.id}}">{{subject.subjectTitle}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 text-right control-label col-form-label">{{phrase.url}} *</label>
+                            <div class="col-sm-10">
+                                <input type="file" name="url">
+                            </div>
+                        </div>
+                        <div class="form-group row" >
+                            <label class="col-sm-2 text-right control-label col-form-label">{{phrase.lectureStatus}} *</label>
+                            <div class="col-sm-10">
+
+                                <div class="radio-list">
+                                    <label>
+                                        <input type="radio" name="lectureStatus" value="1" ng-model="form.lectureStatus" >
+                                        {{phrase.Active}}
+                                    </label>
+                                </div>
+                                <div class="radio-list">
+                                    <label>
+                                        <input type="radio" name="lectureStatus" value="0" ng-model="form.lectureStatus" >
+                                        {{phrase.Inactive}}
+                                    </label>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="form-group m-b-0">
+                            <div class="offset-sm-2 col-sm-10">
+                                <button type="submit" class="btn btn-info waves-effect waves-light" ng-disabled="addLecture.$invalid">{{phrase.addLecture}}</button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" ng-show="views.edit">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-block">
+                <button ng-click="changeView('list')" class="btn btn-danger btn-flat pull-right card-block-input-item">{{phrase.cancelEdit}}</button>
+                <h4 class="card-title">{{phrase.editLecture}}</h4>
+                <div class="table-responsive">
+
+                    <form class="form-horizontal" name="editLecture" role="form" ng-upload="saveEdit(content)" method="post" action="{{'index.php/lectures/' + form.id}}" novalidate>
+                        <div class="form-group row" ng-class="{'has-error': editLecture.lectureTitle.$invalid}">
+                            <label class="col-sm-2 text-right control-label col-form-label">{{phrase.lectureTitle}} * </label>
+                            <div class="col-sm-10">
+                                <input type="text" name="lectureTitle" ng-model="form.lectureTitle" class="form-control" required placeholder="{{phrase.lectureTitle}}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 text-right control-label col-form-label">{{phrase.lectureDescription}}</label>
+                            <div class="col-sm-10">
+                                <textarea ck-editor name="lectureDescription" class="form-control" ng-model="form.lectureDescription" placeholder="{{phrase.lectureDescription}}"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 text-right control-label col-form-label">{{phrase.teacherId}}</label>
+                            <div class="col-sm-10">
+                                <select class="form-control" ng-model="form.teacherId" name="teacherId" ng-change="classesList()" ng-init="teacherList()">
+                                    <option ng-repeat="teacher in teachers" value="{{teacher.id}}"   >{{teacher.fullName}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 text-right control-label col-form-label">{{phrase.classId}}</label>
+                            <div class="col-sm-10">
+                                <select class="form-control" ng-model="form.classId" name="classId" ng-change="subjectList()" ng-init="classesList()">
+                                    <option ng-repeat="singleClass in classes" value="{{singleClass.id}}" >{{singleClass.className}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 text-right control-label col-form-label">{{phrase.subjectId}}</label>
+                            <div class="col-sm-10">
+                                <select class="form-control" ng-model="form.subjectId" name="subjectId" ng-init="">
+                                    <option ng-repeat="subject in subjects" value="{{subject.id}}" >{{subject.subjectTitle}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 text-right control-label col-form-label">{{phrase.url}} *</label>
+                            <div class="col-sm-10">
+                                <input type="file" name="url">
+                            </div>
+                        </div>
+                        <div class="form-group m-b-0">
+                            <div class="offset-sm-2 col-sm-10">
+                                <button type="submit" class="btn btn-info waves-effect waves-light" ng-disabled="editLecture.$invalid">{{phrase.editLecture}}</button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" ng-show="views.read">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-block">
+                <h4 class="card-title">{{form.lectureTitle}} - {{form.createAt}}</h4>
+                <div class="table-responsive">
+
+                    <div ng-bind-html="lectureDescription"></div>
+                    <br/>
+                    {{phrase.teacherId}} : {{form.teacherId}}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,469 @@
+<div class="row page-titles no-print">
+    <div class="col-md-6 col-8 align-self-center">
+        <h3 class="text-themecolor m-b-0 m-t-0">{{phrase.id_cards}}</h3>
+    </div>
+    <div class="col-md-6 col-4 align-self-center">
+
+    </div>
+</div>
+
+<div class="row" ng-show="views.list">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-block">
+                <button ng-show="$root.can('id_cards.add_card')" ng-click="changeView('add')" class="btn pull-right btn-success card-block-input-item">{{phrase.add_card}}</button>
+                <div class="pull-right card-block-input-group card-block-input-item">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="table_search" ng-model="searchText" placeholder="{{phrase.Search}}" class="form-control input-sm">
+                        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                    </div>
+                </div>
+                <h4 class="card-title">{{phrase.list_cards}}</h4>
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>{{phrase.card_name}}</th>
+                                <th style="width:160px;" ng-show="$root.can('id_cards.edit_card') || $root.can('id_cards.del_card')" >{{phrase.Operations}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="id_cards_one in idcards | filter:searchText">
+                                <td>{{id_cards_one.card_name}}</td>
+                                <td ng-show="$root.can('id_cards.edit_card') || $root.can('id_cards.del_card')">
+                                    <button ng-show="$root.can('id_cards.edit_card')" ng-click="edit(id_cards_one.id)" type="button" class="btn btn-info btn-circle" title="{{phrase.Edit}}" tooltip><i class="fa fa-pencil"></i></button>
+                                    <button ng-show="$root.can('id_cards.del_card')" ng-click="remove(id_cards_one,$index)" type="button" class="btn btn-danger btn-circle" title="{{phrase.Remove}}" tooltip><i class="fa fa-trash-o"></i></button>
+                                </td>
+                            </tr>
+                            <tr ng-show="!idcards.length"><td class="noTableData" colspan="3">{{phrase.noDataAvailable}}</td></tr>
+                        </tbody>
+                    </table>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row" ng-show="views.add">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-block">
+                <button ng-click="changeView('list')" class="btn btn-danger btn-flat pull-right card-block-input-item">{{phrase.cancelAdd}}</button>
+                <h4 class="card-title">{{phrase.add_card}}</h4>
+                <div>
+
+                    <form class="form-horizontal" name="id_cards_add_form" role="form" ng-submit="saveAdd()" novalidate>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <div class="col-sm-12">
+                            
+                                    <div class="row">
+                                        <div class="col-sm-10">
+                                            <div class="form-group row" ng-class="{'has-error': id_cards_add_form.card_name.$invalid}">
+                                                <label class="col-sm-2 text-right control-label col-form-label">{{phrase.card_name}} *</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" name="card_name" ng-model="form.card_name" class="form-control" placeholder="{{phrase.card_name}}" required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row" ng-class="{'has-error': id_cards_add_form.card_image.$invalid}">
+                                                <label class="col-sm-2 text-right control-label col-form-label">{{phrase.card_img}} *</label>
+                                                <div class="col-sm-10 row">
+                                                    <div class="col-sm-12">
+                                                        <input type="file" name="card_image" file-model="form.card_image">
+                                                    </div>
+                                                    <div class="col-sm-12 row" style="padding-top:10px;">
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Top</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[content_top]" ng-model="form.position_margins.content_top" class="form-control">
+                                                        </div>
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Bottom</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[content_bottom]" ng-model="form.position_margins.content_bottom" class="form-control">
+                                                        </div>
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Left</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[content_left]" ng-model="form.position_margins.content_left" class="form-control">
+                                                        </div>
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Right</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[content_right]" ng-model="form.position_margins.content_right" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row" >
+                                                <label class="col-sm-2 text-right control-label col-form-label">{{phrase.header_text}} </label>
+                                                <div class="col-sm-10 row">
+                                                    <div class="col-sm-12">
+                                                        <textarea ck-editor name="header_text" class="form-control" ng-model="form.header_text" placeholder="{{phrase.header_text}}" ></textarea>
+                                                    </div>
+                                                    <div class="col-sm-12 row" style="padding-top:10px;">
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Top</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[header_text_top]" ng-model="form.position_margins.header_text_top" class="form-control" >
+                                                        </div>
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Left</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[header_text_left]" ng-model="form.position_margins.header_text_left" class="form-control" >
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row" >
+                                                <label class="col-sm-2 text-right control-label col-form-label">{{phrase.body_right}} </label>
+                                                <div class="col-sm-10 row">
+                                                    <div class="col-sm-12">
+                                                        <textarea ck-editor name="main_left" class="form-control" ng-model="form.main_left" placeholder="{{phrase.body_right}}" ></textarea>
+                                                    </div>
+                                                    <div class="col-sm-12 row" style="padding-top:10px;">
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Top</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[main_left_top]" ng-model="form.position_margins.main_left_top" class="form-control" >
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row" >
+                                                <label class="col-sm-2 text-right control-label col-form-label">{{phrase.body_left}} </label>
+                                                <div class="col-sm-10 row">
+                                                    <div class="col-sm-12">
+                                                        <textarea ck-editor name="main_right" class="form-control" ng-model="form.main_right" placeholder="{{phrase.body_left}}" ></textarea>
+                                                    </div>
+                                                    <div class="col-sm-12 row" style="padding-top:10px;">
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Top</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[main_right_top]" ng-model="form.position_margins.main_right_top" class="form-control" >
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row" >
+                                                <label class="col-sm-2 text-right control-label col-form-label">{{phrase.footer_text}} </label>
+                                                <div class="col-sm-10 row">
+                                                    <div class="col-sm-12">
+                                                        <textarea ck-editor name="footer_text" class="form-control" ng-model="form.footer_text" placeholder="{{phrase.footer_text}}" ></textarea>
+                                                    </div>
+                                                    <div class="col-sm-12 row" style="padding-top:10px;">
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Top</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[footer_text_top]" ng-model="form.position_margins.footer_text_top" class="form-control" >
+                                                        </div>
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Left</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[footer_text_left]" ng-model="form.position_margins.footer_text_left" class="form-control" >
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group m-b-0">
+                                                <div class="offset-sm-2 col-sm-10">
+                                                    <button type="submit" class="btn btn-info waves-effect waves-light" ng-disabled="id_cards_add_form.$invalid">{{phrase.add_card}}</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <div style="position: fixed;">
+                                                <table class="table table-bordered table-hover" style="font-size: 10px;">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td style="padding: 5px;">
+                                                                [user_name]
+                                                            </td>
+                                                            <td style="padding: 5px;">
+                                                                [full_name]
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 5px;">
+                                                                [email]
+                                                            </td>
+                                                            <td style="padding: 5px;">
+                                                                [date_of_birth]
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 5px;">
+                                                                [gender]
+                                                            </td>
+                                                            <td style="padding: 5px;">
+                                                                [religion]
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 5px;">
+                                                                [phone_number]
+                                                            </td>
+                                                            <td style="padding: 5px;">
+                                                                [mobile_number]
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 5px;">
+                                                                [address]
+                                                            </td>
+                                                            <td style="padding: 5px;">
+                                                                [admission_number]
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 5px;">
+                                                                [admission_date]
+                                                            </td>
+                                                            <td style="padding: 5px;">
+                                                                [roll_id]
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 5px;">
+                                                                [student_category]
+                                                            </td>
+                                                            <td style="padding: 5px;">
+                                                                [class_name]
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 5px;">
+                                                                [section_name]
+                                                            </td>
+                                                            <td style="padding: 5px;">
+                                                                [father_name]
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 5px;">
+                                                                [mother_name]
+                                                            </td>
+                                                            <td style="padding: 5px;">
+                                                                [profile_image]
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" ng-show="views.edit">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-block">
+                    <button ng-click="changeView('list')" class="btn btn-danger btn-flat pull-right card-block-input-item">{{phrase.cancelEdit}}</button>
+                    <h4 class="card-title">{{phrase.edit_cert}}</h4>
+                    <div>
+
+                    <form class="form-horizontal" name="id_cards_edit_form" role="form" ng-submit="saveEdit()" novalidate>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <div class="col-sm-12">
+                            
+                                    <div class="row">
+                                        <div class="col-sm-10">
+                                            <div class="form-group row" ng-class="{'has-error': id_cards_edit_form.card_name.$invalid}">
+                                                <label class="col-sm-2 text-right control-label col-form-label">{{phrase.card_name}} *</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" name="card_name" ng-model="form.card_name" class="form-control" placeholder="{{phrase.card_name}}" required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row" ng-class="{'has-error': id_cards_edit_form.card_image.$invalid}">
+                                                <label class="col-sm-2 text-right control-label col-form-label">{{phrase.card_img}} *</label>
+                                                <div class="col-sm-10 row">
+                                                    <div class="col-sm-12">
+                                                        <input type="file" name="card_image" file-model="form.card_image">
+                                                    </div>
+                                                    <div class="col-sm-12 row" style="padding-top:10px;">
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Top</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[content_top]" ng-model="form.position_margins.content_top" class="form-control">
+                                                        </div>
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Bottom</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[content_bottom]" ng-model="form.position_margins.content_bottom" class="form-control">
+                                                        </div>
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Left</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[content_left]" ng-model="form.position_margins.content_left" class="form-control">
+                                                        </div>
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Right</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[content_right]" ng-model="form.position_margins.content_right" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row" >
+                                                <label class="col-sm-2 text-right control-label col-form-label">{{phrase.header_text}} </label>
+                                                <div class="col-sm-10 row">
+                                                    <div class="col-sm-12">
+                                                        <textarea ck-editor name="header_text" class="form-control" ng-model="form.header_text" placeholder="{{phrase.header_text}}" ></textarea>
+                                                    </div>
+                                                    <div class="col-sm-12 row" style="padding-top:10px;">
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Top</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[header_text_top]" ng-model="form.position_margins.header_text_top" class="form-control" >
+                                                        </div>
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Left</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[header_text_left]" ng-model="form.position_margins.header_text_left" class="form-control" >
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row" >
+                                                <label class="col-sm-2 text-right control-label col-form-label">{{phrase.body_right}} </label>
+                                                <div class="col-sm-10 row">
+                                                    <div class="col-sm-12">
+                                                        <textarea ck-editor name="main_left" class="form-control" ng-model="form.main_left" placeholder="{{phrase.body_right}}" ></textarea>
+                                                    </div>
+                                                    <div class="col-sm-12 row" style="padding-top:10px;">
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Top</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[main_left_top]" ng-model="form.position_margins.main_left_top" class="form-control" >
+                                                        </div>
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Left</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[main_left_left]" ng-model="form.position_margins.main_left_left" class="form-control" >
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row" >
+                                                <label class="col-sm-2 text-right control-label col-form-label">{{phrase.body_left}} </label>
+                                                <div class="col-sm-10 row">
+                                                    <div class="col-sm-12">
+                                                        <textarea ck-editor name="main_right" class="form-control" ng-model="form.main_right" placeholder="{{phrase.body_left}}" ></textarea>
+                                                    </div>
+                                                    <div class="col-sm-12 row" style="padding-top:10px;">
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Top</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[main_right_top]" ng-model="form.position_margins.main_right_top" class="form-control" >
+                                                        </div>
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Left</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[main_right_left]" ng-model="form.position_margins.main_right_left" class="form-control" >
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row" >
+                                                <label class="col-sm-2 text-right control-label col-form-label">{{phrase.footer_text}} </label>
+                                                <div class="col-sm-10 row">
+                                                    <div class="col-sm-12">
+                                                        <textarea ck-editor name="footer_text" class="form-control" ng-model="form.footer_text" placeholder="{{phrase.footer_text}}" ></textarea>
+                                                    </div>
+                                                    <div class="col-sm-12 row" style="padding-top:10px;">
+                                                        <label class="col-sm-2 text-right control-label col-form-label">Margin Top</label>
+                                                        <div class="col-sm-4">
+                                                            <input type="text" name="position_margins[footer_text_top]" ng-model="form.position_margins.footer_text_top" class="form-control" >
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group m-b-0">
+                                                <div class="offset-sm-2 col-sm-10">
+                                                    <button type="submit" class="btn btn-info waves-effect waves-light" ng-disabled="id_cards_edit_form.$invalid">{{phrase.edit_card}}</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <div style="position: fixed;font-size: 12px;">
+                                                <table class="table table-bordered table-hover" style="font-size: 10px;">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td style="padding: 5px;">
+                                                                [user_name]
+                                                            </td>
+                                                            <td style="padding: 5px;">
+                                                                [full_name]
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 5px;">
+                                                                [email]
+                                                            </td>
+                                                            <td style="padding: 5px;">
+                                                                [date_of_birth]
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 5px;">
+                                                                [gender]
+                                                            </td>
+                                                            <td style="padding: 5px;">
+                                                                [religion]
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 5px;">
+                                                                [phone_number]
+                                                            </td>
+                                                            <td style="padding: 5px;">
+                                                                [mobile_number]
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 5px;">
+                                                                [address]
+                                                            </td>
+                                                            <td style="padding: 5px;">
+                                                                [admission_number]
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 5px;">
+                                                                [admission_date]
+                                                            </td>
+                                                            <td style="padding: 5px;">
+                                                                [roll_id]
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 5px;">
+                                                                [student_category]
+                                                            </td>
+                                                            <td style="padding: 5px;">
+                                                                [class_name]
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 5px;">
+                                                                [section_name]
+                                                            </td>
+                                                            <td style="padding: 5px;">
+                                                                [father_name]
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 5px;">
+                                                                [mother_name]
+                                                            </td>
+                                                            <td style="padding: 5px;">
+                                                                [profile_image]
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,1730 @@
+<div class="card"> 
+    <div class="col-sm-12">
+        <div class="row">
+            <div class="tab-nav">
+                <label><a ng-click="details(subject.id)"><img class="tab-icon" src="{{images.overview}}">Overview</a></label>
+                <label><a ng-click="content(subject.id)"><img class="tab-icon" src="{{images.content}}">Content</a></label>
+                <label><a ng-click="assignments(subject.id)"><img class="tab-icon" src="{{images.assignments}}">Assignments</a></label>
+                <label><a ng-click="quizzes(subject.id)"><img class="tab-icon" src="{{images.quizzes}}">Exams</a></label>
+                <label><a ng-click="gradeItems(subject.id)"><img class="tab-icon" src="{{images.gradeItems}}">Grades</a></label>
+                <label><a ng-click="post(subject.id)"><img class="tab-icon" src="{{images.posts}}">Post</a></label>
+                <label><a ng-click="lectures(subject.id)"><img class="tab-icon" src="{{images.lectures}}">Lectures</a></label>
+            </div>
+        </div>
+
+        <!-- Details -->
+        <div class="row" ng-show="views.details">
+            <div class="col-sm-8">
+                <h3>{{phrase.classes}}</h3>
+                <ul class="classes-ul">
+                    <li ng-repeat="oneClass in classes"><a href="index.php/portal#/classes">
+                            <img class="class-img" src="assets/images/class-img.png" alt="user">
+                            {{oneClass.className}}</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-4">
+                <h3>{{phrase.teachers}}</h3>
+                <ul class="teachers-ul">
+                    <li  ng-repeat="oneTeacher in teachers"><a href="" ng-click="teacherProfile(oneTeacher.id)" >
+                            <img class="profile-img" src="{{oneTeacher.photo}}" alt="user">
+                            {{oneTeacher.fullName}}</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="row" ng-show="views.content">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-show="$root.can('studyMaterial.addMaterial')" ng-click="changeView('addMaterial')" class="btn pull-right btn-success card-block-input-item">{{phrase.addMaterial}}</button>
+                        <div class="pull-right card-block-input-group card-block-input-item">
+                            <div class="input-group input-group-sm">
+                                <input type="text"  name="table_search" ng-model="searchInput" placeholder="{{phrase.Search}}" ng-change="searchDB()" class="form-control input-sm">
+                                <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                            </div>
+                        </div>
+                        <h4 class="card-title">{{phrase.listStudyMaterial}}</h4>
+                        <div class="table-responsive">
+
+                            <table class="table table-bordered table-hover">
+                                <tbody>
+                                    <tr>
+                                        <th>{{phrase.materialTitle}}</th>
+                                        <th>{{phrase.materialDesc}}</th>
+                                        <th ng-show="$root.can('studyMaterial.Download') || $root.can('studyMaterial.editMaterial') || $root.can('studyMaterial.delMaterial')">{{phrase.Operations}}</th>
+                                    </tr>
+                                    <tr dir-paginate="material in materials | itemsPerPage:20" total-items="totalItems">
+                                        <td>{{material.material_title}}</td>
+                                        <td>{{material.material_description}}</td>
+                                        <td ng-show="$root.can('studyMaterial.Download') || $root.can('studyMaterial.editMaterial') || $root.can('studyMaterial.delMaterial')">
+                                            <a ng-show="$root.can('studyMaterial.Download')" target="_blank" href="{{'index.php/materials/download/' + material.id}}"><button type="button" class="btn btn-warning btn-circle" title="{{phrase.Download}}" tooltip><i class="fa fa-cloud-download"></i></button></a>
+                                            <button ng-show="$root.can('studyMaterial.editMaterial')" ng-click="editmaterial(material.id)" type="button" class="btn btn-info btn-circle" title="{{phrase.Edit}}" tooltip><i class="fa fa-pencil"></i></button>
+                                            <button ng-show="$root.can('studyMaterial.delMaterial')" ng-click="removematerial(material, $index)" type="button" class="btn btn-danger btn-circle" title="{{phrase.Remove}}" tooltip><i class="fa fa-trash-o"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr ng-show="materials.length == '0'"><td class="noTableData" colspan="5">{{phrase.noMaterialData}}</td></tr>
+                                </tbody>
+                            </table>
+                            <dir-pagination-controls class="pull-right" on-page-change="getResultsPage(newPageNumber)" template-url="assets/templates/dirPagination.html" ></dir-pagination-controls>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Material --> 
+        <div class="row" ng-show="views.addMaterial">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-click="changeView('content')" class="btn btn-danger btn-flat pull-right card-block-input-item">{{phrase.cancelAdd}}</button>
+                        <h4 class="card-title">{{phrase.addMaterial}}</h4>
+                        <div class="table-responsive">
+                            <form class="form-horizontal" name="addMaterial" role="form" ng-upload="saveAddMaterial(content)" role="form" method="post" action="index.php/overview/material" novalidate>
+                                <div class="form-group row" ng-class="{'has-error': addDorm.material_title.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.materialTitle}} * </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="material_title" ng-model="form.material_title" class="form-control" required placeholder="{{phrase.materialTitle}}">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.materialDesc}}</label>
+                                    <div class="col-sm-10">
+                                        <textarea name="material_description" class="form-control" ng-model="form.material_description" placeholder="{{phrase.materialDesc}}"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.materialFile}}</label>
+                                    <div class="col-sm-10">
+                                        <input type="file" name="material_file" id="material_add_file">
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': addDorm['class_id[]'].$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.class}} *</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.class_id" name="class_id[]" ng-change="sectionsList()" multiple required>
+                                            <option ng-repeat="class in classes" value="{{class.id}}">{{class.className}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': addDorm['sectionId[]'].$invalid}" ng-show="$root.dashboardData.enableSections == '1'">
+                                    <label class="col-sm-2 text-right control-label col-form-label">Sections *</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.sectionId" name="sectionId[]" multiple ng-required="$root.dashboardData.enableSections == '1'">
+                                            <option ng-repeat="section in sections" value="{{section.id}}">{{section.sectionName}} - {{section.sectionTitle}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <input type="hidden" ng-model="form.subject_id" value="{{id}}" name="subject_id"> 
+<!--                                <div class="form-group row" ng-class="{'has-error': addDorm.subject_id.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.Subject}} *</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.subject_id" required name="subject_id">
+                                            <option ng-repeat="subjectOne in subject" value="{{subjectOne.id}}">{{subjectOne.subjectTitle}}</option>
+                                        </select>
+                                    </div>
+                                </div>-->
+                                <div class="form-group m-b-0">
+                                    <div class="offset-sm-2 col-sm-10">
+                                        <button type="submit" class="btn btn-info waves-effect waves-light" ng-disabled="addDorm.$invalid">{{phrase.addMaterial}}</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Material -->
+        <div class="row" ng-show="views.editMaterial">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-click="changeView('content')" class="btn btn-danger btn-flat pull-right card-block-input-item">{{phrase.cancelAdd}}</button>
+                        <h4 class="card-title">{{phrase.editMaterial}}</h4>
+                        <div class="table-responsive">
+                            <form class="form-horizontal" name="editMaterial" role="form" ng-upload="saveEditMaterial(content)" role="form" method="post" action="{{'index.php/overview/editMaterial/' + form.id}}" novalidate>
+                                <div class="form-group row" ng-class="{'has-error': editMaterial.material_title.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.materialTitle}} * </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="material_title" ng-model="form.material_title" class="form-control" required placeholder="{{phrase.materialTitle}}">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.materialDesc}}</label>
+                                    <div class="col-sm-10">
+                                        <textarea name="material_description" class="form-control" ng-model="form.material_description" placeholder="{{phrase.materialDesc}}"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.materialFile}}</label>
+                                    <div class="col-sm-10">
+                                        <input type="file" name="material_file" id="material_edit_file">
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': editMaterial['class_id[]'].$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.class}} *</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.class_id" name="class_id[]" id="editClassId" multiple required>
+                                            <option ng-repeat="class in classes" value="{{class.id}}">{{class.className}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': editMaterial['sectionId[]'].$invalid}" ng-show="$root.dashboardData.enableSections == '1'">
+                                    <label class="col-sm-2 text-right control-label col-form-label">Sections *</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.sectionId" name="sectionId[]" multiple ng-required="$root.dashboardData.enableSections == '1'">
+                                            <option ng-repeat="section in form.sections" value="{{section.id}}" ng-selected="isSectionSelected(form.sectionId, section.id)">{{section.sectionName}} - {{section.sectionTitle}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group m-b-0">
+                                    <div class="offset-sm-2 col-sm-10">
+                                        <button type="submit" class="btn btn-info waves-effect waves-light" ng-disabled="editMaterial.$invalid">{{phrase.editMaterial}}</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assignments -->
+        <div class="row" ng-show="views.assignments">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button  ng-show="$root.can('Assignments.AddAssignments')" ng-click="changeView('addAssignment')" class="btn pull-right btn-success card-block-input-item">{{phrase.AddAssignments}}</button>
+                        <div class="pull-right card-block-input-group card-block-input-item">
+                            <div class="input-group input-group-sm">
+                                <input type="text"  name="table_search" ng-model="searchInput" ng-change="searchDB()" placeholder="{{phrase.Search}}" class="form-control input-sm">
+                                <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                            </div>
+                        </div>
+                        <h4 class="card-title">{{phrase.listAssignments}}</h4>
+                        <div class="table-responsive">
+
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>{{phrase.ID}}</th>
+                                        <th>{{phrase.AssignmentTitle}}</th>
+                                        <th>{{phrase.AssignmentDescription}}</th>
+                                        <th>{{phrase.AssignmentDeadline}}</th>
+                                        <th ng-show="$root.can('Assignments.Download') || $root.can('Assignments.viewAnswers') || $root.can('Assignments.applyAssAnswer') || $root.can('Assignments.editAssignment') || $root.can('Assignments.delAssignment')" style="width:200px;">{{phrase.Operations}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody dir-paginate="assignment in assignments | itemsPerPage:20" total-items="totalItems">
+                                    <tr>
+                                        <td>{{assignment.id}}</td>
+                                        <td>{{assignment.AssignTitle}}</td>
+                                        <td>{{assignment.AssignDescription}}</td>
+                                        <td>{{assignment.AssignDeadLine}}</td>
+                                        <td ng-show="$root.can('Assignments.Download') || $root.can('Assignments.viewAnswers') || $root.can('Assignments.applyAssAnswer') || $root.can('Assignments.editAssignment') || $root.can('Assignments.delAssignment')">
+                                            <a ng-show="$root.can('Assignments.Download')" target="_blank" href="{{'index.php/overview/downloadAssignment/' + assignment.id}}"><button type="button" class="btn btn-warning btn-circle" title="{{phrase.Download}}" tooltip><i class="fa fa-cloud-download"></i></button></a>
+                                            <button ng-show="$root.can('Assignments.viewAnswers')" ng-click="listAssignmentAnswers(assignment.id)" type="button" class="btn btn-success btn-circle" title="{{phrase.viewAnswers}}" tooltip><i class="fa fa-check"></i></button>
+                                            <button ng-show="$root.can('Assignments.applyAssAnswer')" ng-click="uploadAssignment(assignment.id)" type="button" class="btn btn-info btn-circle" title="Upload answer" tooltip><i class="fa fa-upload"></i></button>
+                                            <button ng-show="$root.can('Assignments.editAssignment')" ng-click="editassignment(assignment.id)" type="button" class="btn btn-info btn-circle" title="{{phrase.Edit}}" tooltip><i class="fa fa-pencil"></i></button>
+                                            <button ng-show="$root.can('Assignments.delAssignment')" ng-click="removeassignment(assignment, $index)" type="button" class="btn btn-danger btn-circle" title="{{phrase.Remove}}" tooltip><i class="fa fa-trash-o"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr ng-show="assignmentsAnswers">
+                                        <td colspan="5">
+                                            <span ng-repeat="answer in assignmentsAnswers[assignment.id]">
+                                                {{answer.fullName}} :
+                                                <span ng-show="answer.userTime"> {{phrase.stdAppliedOn}} {{answer.userTime}}</span>
+                                                <span ng-show="!answer.userTime"> {{phrase.stdNotApplied}}</span>
+                                                <br/>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody ng-show="assignments.length == '0'"><tr><td class="noTableData" colspan="5">{{phrase.noAssignments}}</td></tr></tbody>
+                            </table>
+                            <dir-pagination-controls class="pull-right" on-page-change="getResultsPage(newPageNumber)" template-url="assets/templates/dirPagination.html" ></dir-pagination-controls>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Assignment -->    
+        <div class="row" ng-show="views.addAssignment">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-click="changeView('assignments')" class="btn btn-danger btn-flat pull-right card-block-input-item">{{phrase.cancelAdd}}</button>
+                        <h4 class="card-title">{{phrase.AddAssignments}}</h4>
+                        <div class="table-responsive">
+
+                            <form class="form-horizontal" name="addAssignment" role="form" ng-upload="saveAddAssignment(content)" method="post" action="index.php/overview/assignments" novalidate>
+                                <div class="form-group row" ng-class="{'has-error': addAssign.AssignTitle.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.AssignmentTitle}} * </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="AssignTitle" ng-model="form.AssignTitle" class="form-control" required placeholder="{{phrase.AssignmentTitle}}">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.AssignmentDescription}}</label>
+                                    <div class="col-sm-10">
+                                        <textarea name="AssignDescription" class="form-control" ng-model="form.AssignDescription" placeholder="{{phrase.AssignmentDescription}}"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': addAssign.AssignDeadLine.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.AssignmentDeadline}} *</label>
+                                    <div class="col-sm-10">
+                                        <input date-picker type="text" id="datemask" name="AssignDeadLine" ng-model="form.AssignDeadLine" required class="form-control datemask">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.AssignmentFile}}</label>
+                                    <div class="col-sm-10">
+                                        <input type="file" name="AssignFile" id="AssignAddFile">
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': addAssign['classId[]'].$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.class}} *</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.class_id" name="classId[]" ng-change="sectionsList()" multiple required>
+                                            <option ng-repeat="class in classes" value="{{class.id}}">{{class.className}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': addAssign['sectionId[]'].$invalid}" ng-show="$root.dashboardData.enableSections == '1'">
+                                    <label class="col-sm-2 text-right control-label col-form-label">Section *</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.sectionId" name="sectionId[]" multiple ng-required="$root.dashboardData.enableSections == '1'">
+                                            <option ng-repeat="section in sections" value="{{section.id}}">{{section.sectionName}} - {{section.sectionTitle}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <input type="hidden" ng-model="form.subjectId" value="{{id}}" name="subjectId"> 
+<!--                                <div class="form-group row" ng-class="{'has-error': addAssign.subjectId.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.Subject}} *</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.subjectId" required name="subjectId">
+                                            <option ng-repeat="subjectOne in subject" value="{{subjectOne.id}}">{{subjectOne.subjectTitle}}</option>
+                                        </select>
+                                    </div>
+                                </div>-->
+                                <div class="form-group m-b-0">
+                                    <div class="offset-sm-2 col-sm-10">
+                                        <button type="submit" class="btn btn-info waves-effect waves-light" ng-disabled="addAssign.$invalid">{{phrase.AddAssignments}}</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Assignment -->
+        <div class="row" ng-show="views.editAssignment">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-click="changeView('assignments')" class="btn btn-danger btn-flat pull-right card-block-input-item">{{phrase.cancelEdit}}</button>
+                        <h4 class="card-title">{{phrase.editAssignment}}</h4>
+                        <div class="table-responsive">
+
+                            <form class="form-horizontal" name="editAssignment" role="form"  ng-upload="saveEditAssignment(content)" role="form" method="post" action="{{'index.php/overview/editAssignment/' + form.id}}" novalidate>
+                                <div class="form-group row" ng-class="{'has-error': editAssign.AssignTitle.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.AssignmentTitle}} * </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="AssignTitle" ng-model="form.AssignTitle" class="form-control" required placeholder="{{phrase.AssignmentTitle}}">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.AssignmentDescription}}</label>
+                                    <div class="col-sm-10">
+                                        <textarea name="AssignDescription" class="form-control" ng-model="form.AssignDescription" placeholder="{{phrase.AssignmentDescription}}"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': editAssign.AssignDeadLine.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.AssignmentDeadline}} *</label>
+                                    <div class="col-sm-10">
+                                        <input date-picker type="text" id="datemaskEdit" name="AssignDeadLine" ng-model="form.AssignDeadLine" required class="form-control datemask">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.AssignmentFile}}</label>
+                                    <div class="col-sm-10">
+                                        <input type="file" name="AssignFile" id="AssignEditFile">
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': editAssign['classId[]'].$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.class}} *</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.classId" name="classId[]" ng-change="subjectList()" id="editClassId" multiple required>
+                                            <option ng-repeat="class in classes" value="{{class.id}}">{{class.className}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': editAssign['sectionId[]'].$invalid}" ng-show="$root.dashboardData.enableSections == '1'">
+                                    <label class="col-sm-2 text-right control-label col-form-label">Section *</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.sectionId" name="sectionId[]" multiple ng-required="$root.dashboardData.enableSections == '1'">
+                                            <option ng-repeat="section in form.sections" value="{{section.id}}" ng-selected="isSectionSelected(form.sectionId, section.id)">{{section.sectionName}} - {{section.sectionTitle}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group m-b-0">
+                                    <div class="offset-sm-2 col-sm-10">
+                                        <button type="submit" class="btn btn-info waves-effect waves-light" ng-disabled="editAssign.$invalid">{{phrase.editAssignment}}</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Assignment -->
+        <div class="row" ng-show="views.assignmentUpload">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-click="changeView('assignments')" class="btn btn-danger btn-flat pull-right card-block-input-item">{{phrase.Return}}</button>
+                        <h4 class="card-title">{{phrase.uploadAnswer}}</h4>
+                        <div class="table-responsive">
+
+                            <form class="form-horizontal" name="uploadAnswer" role="form" ng-upload="saveAssignmentAnswer(content)" method="post" action="{{'index.php/overview/uploadAssignment/' + form.assignmentId}}" novalidate>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.userNotes}}</label>
+                                    <div class="col-sm-10">
+                                        <textarea name="userNotes" class="form-control" ng-model="form.AssignDescription" userNotes="Answers notes"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.answerFile}}</label>
+                                    <div class="col-sm-10">
+                                        <input type="file" name="fileName">
+                                    </div>
+                                </div>
+                                <div class="form-group m-b-0">
+                                    <div class="offset-sm-2 col-sm-10">
+                                        <button type="submit" class="btn btn-info waves-effect waves-light" ng-disabled="uploadAnswer.$invalid">{{phrase.uploadAnswer}}</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assignment Answers -->
+        <div class="row" ng-show="views.assignmentAnswers">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-click="changeView('assignments')" class="btn pull-right btn-success card-block-input-item">{{phrase.Return}}</button>
+                        <div class="pull-right card-block-input-group card-block-input-item">
+                            <div class="input-group input-group-sm">
+                                <input type="text"  name="table_search" ng-model="searchText" placeholder="{{phrase.Search}}" class="form-control input-sm">
+                                <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                            </div>
+                        </div>
+                        <h4 class="card-title">{{phrase.viewAnswers}}</h4>
+                        <div class="table-responsive">
+
+                            <table class="table table-bordered table-hover">
+                                <tbody>
+                                    <tr>
+                                        <th>{{phrase.studentName}}</th>
+                                        <th>{{phrase.class}}</th>
+                                        <th>{{phrase.timeApplied}}</th>
+                                        <th>{{phrase.notes}}</th>
+                                        <th>{{phrase.Operations}}</th>
+                                    </tr>
+                                    <tr ng-repeat="answer in answers| filter:searchText">
+                                        <td>
+                                            <img alt="{{answer.fullName}}" class="user-image img-circle" style="width:35px; height:35px;" ng-src="{{'index.php/dashboard/profileImage/' + answer.userId}}">
+                                            {{answer.fullName}}
+                                        </td>
+                                        <td>{{answer.className}}</td>
+                                        <td>{{answer.userTime}}</td>
+                                        <td>{{answer.userNotes}}</td>
+                                        <td>
+                                            <a target="_blank" href="{{'index.php/assignments/downloadAnswer/' + answer.id}}"><button type="button" class="btn btn-info btn-circle" title="{{phrase.Download}}" tooltip><i class="fa fa-cloud-download"></i></button></a>
+                                        </td>
+                                    </tr>
+                                    <tr ng-show="assignments.length == '0'"><td class="noTableData" colspan="5">{{phrase.noAssignments}}</td></tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quizzes -->
+        <div class="row" ng-show="views.quizzes">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button type="button" ng-show="$root.can('onlineExams.QuestionsArch')" ng-click="questionsArch()" class="btn pull-right btn-success card-block-input-item"><i class="fa fa-question" aria-hidden="true"></i> {{phrase.QuestionsArch}}</button>
+                        <button  ng-show="$root.can('onlineExams.addExam')" ng-click="changeView('addQuiz')" class="btn pull-right btn-success card-block-input-item">{{phrase.addExam}}</button>
+                        <div class="pull-right card-block-input-group card-block-input-item">
+                            <div class="input-group input-group-sm">
+                                <input type="text" tooltip title="{{phrase.minCharLength3}}" name="table_search" ng-change="searchDB()" ng-model="searchText" placeholder="{{phrase.Search}}" class="form-control input-sm">
+                                <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                            </div>
+                        </div>
+                        <h4 class="card-title">{{phrase.listExams}}</h4>
+                        <div class="table-responsive">
+
+                            <table class="table table-bordered table-hover">
+                                <tbody>
+                                    <tr>
+                                        <th>{{phrase.ID}}</th>
+                                        <th>{{phrase.examName}}</th>
+                                        <th>{{phrase.examDesc}}</th>
+                                        <th>{{phrase.examDeadline}}</th>
+                                        <th ng-show="$root.can('onlineExams.takeExam') || $root.can('onlineExams.showMarks') || $root.can('onlineExams.editExam') || $root.can('onlineExams.delExam')">{{phrase.Operations}}</th>
+                                    </tr>
+                                    <tr ng-repeat="exam in quizzes| filter:searchText">
+                                        <td>{{exam.id}}</td>
+                                        <td>{{exam.examTitle}}</td>
+                                        <td>{{exam.examDescription}}</td>
+                                        <td>{{exam.ExamEndDate}}</td>
+                                        <td ng-show="$root.can('onlineExams.takeExam') || $root.can('onlineExams.showMarks') || $root.can('onlineExams.editExam') || $root.can('onlineExams.delExam')">
+                                            <button ng-show="$root.can('onlineExams.takeExam')" ng-click="takequiz(exam.id)" type="button" class="btn btn-info btn-circle" title="{{phrase.takeExam}}" tooltip><i class="fa fa-list-alt"></i></button>
+                                            <button ng-show="$root.can('onlineExams.showMarks')" ng-click="quizMarksData(exam.id)" type="button" class="btn btn-success btn-circle" title="{{phrase.showMarks}}" tooltip><i class="fa fa-check-square-o"></i></button>
+                                            <button ng-show="$root.can('onlineExams.editExam')" ng-click="editquiz(exam.id)" type="button" class="btn btn-info btn-circle" title="{{phrase.Edit}}" tooltip><i class="fa fa-pencil"></i></button>
+                                            <button ng-show="$root.can('onlineExams.delExam')" ng-click="removequiz(exam, $index)" type="button" class="btn btn-danger btn-circle" title="{{phrase.Remove}}" tooltip><i class="fa fa-trash-o"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr ng-show="!quizzes.length"><td class="noTableData" colspan="5">{{phrase.noExams}}</td></tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Quiz -->
+        <div class="row" ng-show="views.addQuiz">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-click="changeView('quizzes')" class="btn btn-danger btn-flat pull-right card-block-input-item">{{phrase.cancelAdd}}</button>
+                        <h4 class="card-title">{{phrase.addExam}}</h4>
+                        <div class="form">
+
+                            <form class="form-horizontal" name="addQuiz" role="form" ng-submit="saveAddQuiz()" novalidate>
+                                <div class="form-group row" ng-class="{'has-error': addExam.examTitle.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.examName}} * </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="examTitle" ng-model="form.examTitle" class="form-control" required placeholder="{{phrase.examName}}">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.examDesc}}</label>
+                                    <div class="col-sm-10">
+                                        <textarea name="examDescription" class="form-control" ng-model="form.examDescription" placeholder="{{phrase.examDesc}}"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': addExam.examClass.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.class}} *</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.class_id" name="classId[]" multiple required ng-change="sectionsList()">
+                                            <option ng-repeat="class in classes" value="{{class.id}}">{{class.className}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': addExam.sectionId.$invalid}" ng-show="$root.dashboardData.enableSections == '1'">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.section}} *</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.sectionId" name="sectionId[]" multiple ng-required="$root.dashboardData.enableSections == '1'">
+                                            <option ng-repeat="section in sections" value="{{section.id}}">{{section.sectionName}} - {{section.sectionTitle}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <input type="hidden" ng-model="form.examSubject" required name="examSubject" value="{{id}}">
+<!--                                <div class="form-group row" ng-class="{'has-error': addExam.examSubject.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.Subject}} *</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.examSubject" required name="examSubject">
+                                            <option ng-repeat="subjectOne in subject" value="{{subjectOne.id}}">{{subjectOne.subjectTitle}}</option>
+                                        </select>
+                                    </div>
+                                </div>-->
+                                <div class="form-group row" ng-class="{'has-error': addExam.examDate.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.startTime}} *</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" date-picker id="datemaskStart" name="examDate" ng-model="form.examDate" required class="form-control datemask">
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': addExam.ExamEndDate.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.endTime}} *</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" date-picker id="datemaskEnd" name="ExamEndDate" ng-model="form.ExamEndDate" required class="form-control datemask">
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': addExam.examTimeMinutes.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.allowedExamMin}} *</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="examTimeMinutes" ng-model="form.examTimeMinutes" required class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': addExam.examDegreeSuccess.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.examDegreeSuccess}} *</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="examDegreeSuccess" ng-model="form.examDegreeSuccess" required class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.Extras}}</label>
+                                    <div class="col-sm-10">
+                                        <input type="checkbox" name="ExamShowGrade" ng-model="form.ExamShowGrade" value="1" ng-true-value="1" ng-false-value="0" ng-checked="form.ExamShowGrade == '1'"> {{phrase.showExamGradesAfter}}
+                                        <br/>
+                                        <input type="checkbox" name="random_questions" ng-model="form.random_questions" value="1" ng-true-value="1" ng-false-value="0" ng-checked="form.random_questions == '1'"> {{phrase.randomizeQuestions}}
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.Questions}}</label>
+                                    <div class="col-sm-10">
+
+                                        <div class="row">
+                                            <div class="col-sm-10">
+                                                <ul class="list-group">
+                                                    <li class="list-group-item" ng-repeat="question in form.examQuestion">[{{question.id}}] - {{question.question_text}} <a ng-click="removeExamQuestion(question, $index)">{{phrase.Remove}}</a></li>
+                                                    <li class="list-group-item" ng-if="!form.examQuestion">{{phrase.noQuesAv}}</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-sm-2 text-center">
+                                                <button type="button" ng-click="addQuestionToQuiz()" class="btn btn-success">{{phrase.addQuestion}}</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="form-group m-b-0">
+                                    <div class="offset-sm-2 col-sm-10">
+                                        <button type="submit" class="btn btn-info waves-effect waves-light" ng-disabled="addExam.$invalid">{{phrase.addExam}}</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Quiz -->
+        <div class="row" ng-show="views.editQuiz">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-click="changeView('quizzes')" class="btn pull-right btn-danger card-block-input-item">{{phrase.cancelEdit}}</button>
+                        <h4 class="card-title">{{phrase.editExam}}</h4>
+                        <div class="form">
+
+                            <form class="form-horizontal" name="editQuiz" role="form" ng-submit="saveEditQuiz()" novalidate>
+                                <div class="form-group row" ng-class="{'has-error': editExam.examTitle.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.examName}} * </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="examTitle" ng-model="form.examTitle" class="form-control" required placeholder="{{phrase.examName}}">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.examDesc}}</label>
+                                    <div class="col-sm-10">
+                                        <textarea name="examDescription" class="form-control" ng-model="form.examDescription" placeholder="{{phrase.examDesc}}"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': editExam.examClass.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.class}}</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.class_id" name="classId[]" multiple required ng-change="sectionsList()">
+                                            <option ng-repeat="class in classes" value="{{class.id}}">{{class.className}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': editExam.sectionId.$invalid}" ng-show="$root.dashboardData.enableSections == '1'">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.section}} *</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.sectionId" name="sectionId[]" multiple ng-required="$root.dashboardData.enableSections == '1'">
+                                            <option ng-repeat="section in sections" value="{{section.id}}" ng-selected="isSectionSelected(form.sectionId, section.id)">{{section.sectionName}} - {{section.sectionTitle}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': editExam.examSubject.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.Subject}} *</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.examSubject" required name="examSubject">
+                                            <option ng-repeat="subjectOne in subject" value="{{subjectOne.id}}">{{subjectOne.subjectTitle}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': editExam.examDate.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.startTime}}</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" date-picker id="datemaskStartEdit" name="examDate" ng-model="form.examDate" required class="form-control datemask">
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': editExam.ExamEndDate.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.endTime}}</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" date-picker id="datemaskEndEdit" name="ExamEndDate" ng-model="form.ExamEndDate" required class="form-control datemask">
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': editExam.examTimeMinutes.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.allowedExamMin}} *</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="examTimeMinutes" ng-model="form.examTimeMinutes" required class="form-control" >
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': editExam.examDegreeSuccess.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.examDegreeSuccess}} *</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="examDegreeSuccess" ng-model="form.examDegreeSuccess" required class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.Extras}}</label>
+                                    <div class="col-sm-10">
+                                        <input type="checkbox" name="ExamShowGrade" ng-model="form.ExamShowGrade" value="1" ng-true-value="1" ng-false-value="0" ng-checked="form.ExamShowGrade == '1'"> {{phrase.showExamGradesAfter}}
+                                        <br/>
+                                        <input type="checkbox" name="random_questions" ng-model="form.random_questions" value="1" ng-true-value="1" ng-false-value="0" ng-checked="form.random_questions == '1'"> {{phrase.randomizeQuestions}}
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.Questions}}</label>
+                                    <div class="col-sm-10">
+
+                                        <div class="row">
+                                            <div class="col-sm-10">
+                                                <ul class="list-group">
+                                                    <li class="list-group-item" ng-repeat="question in form.examQuestion">[{{question.id}}] - {{question.question_text}} <a ng-click="removeExamQuestion(question, $index)">{{phrase.Remove}}</a></li>
+                                                    <li class="list-group-item" ng-if="!form.examQuestion">{{phrase.noQuesAv}}</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-sm-2 text-center">
+                                                <button type="button" ng-click="addQuestionToQuiz()" class="btn btn-success">{{phrase.addQuestion}}</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="form-group m-b-0">
+                                    <div class="offset-sm-2 col-sm-10">
+                                        <button type="submit" class="btn btn-info waves-effect waves-light" ng-disabled="editExam.$invalid">{{phrase.editExam}}</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- take Exam -->
+        <div class="row" ng-show="views.takeQuiz">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-block">
+                        <h4 class="card-title">{{phrase.takeExam}}</h4>
+                        <div class="row">
+
+                            <form class="form-horizontal" name="takeQuestions" role="form" ng-submit="submitExam()" novalidate>
+
+                                <div class="row" ng-repeat="question in examQuestions">
+                                    <div class="col-md-12">
+                                        <div class="box box-info" >
+                                            <div class="box-header">
+                                                <h3 class="box-title">
+                                                    <div ng-bind-html="question.question_text"></div>
+                                                </h3>
+                                            </div>
+                                            <div class="box-body">
+                                                <div ng-if="question.question_image != ''" style="padding: 25px; text-align: center;">
+                                                    <img style="max-width: 100%" ng-src="{{'uploads/onlineExams/' + question.question_image}}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="col-sm-12 mathEq center-block" ng-show="question.include_quotation == '1'">
+                                                        Equation : <span ng-if="question.include_quotation == '1'" noedit="1" math-field id="math-field-take" latex="none" latexinput="none" ng-model="question.quotation_text">
+                                                    </div>
+                                                    <div class="col-sm-12" ng-show="!question.question_type || question.question_type == 'radio'">
+                                                        <div class="radio-list" ng-repeat="answer in question.question_answers.answers">
+                                                            <label>
+                                                                <input type="radio" ng-model="question.question_answers.answer" value="{{answer}}"> {{answer}}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12" ng-show="question.question_type && question.question_type == 'check'">
+                                                        <div class="radio-list" ng-repeat="answer in question.question_answers.answers">
+                                                            <label>
+                                                                <input type="checkbox" checklist-model="question.question_answers.answer" checklist-value="answer"> {{answer}}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12" ng-show="question.question_type && question.question_type == 'text'">
+                                                        <input type="text" name="question.question_answers.answer" ng-model="question.question_answers.answer" class="form-control" placeholder="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-offset-2 col-sm-10">
+                                        <button type="submit" class="btn btn-info" ng-disabled="takeQuestions.$invalid">{{phrase.submitAnswers}}</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div style="position: fixed;width: inherit;">
+                    <div class="card">
+                        <div class="card-block">
+                            <h4 class="card-title">{{phrase.takeExam}}</h4>
+                            <div>
+                                <div class="form-group row">
+                                    <div class="col-sm-11">{{takeData.examTitle}}</div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-11">{{takeData.examDescription}}</div>
+                                </div>                    
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" ng-show="takeData.timeLeft != '0'">
+                        <div class="card-block">
+                            <h4 class="card-title">Time Remaining</h4>
+                            <div>
+                                <timer style="font-size:60px;" autostart="false" ng-if="takeData.timeLeft != '0'" id="onlineExamTimer" countdown="1000" interval="1000" finish-callback="finishExam()"> {{hours}}:{{minutes}}:{{seconds}}</timer>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Marks --> 
+        <div class="row" ng-show="views.marks">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-click="changeView('quizzes')" class="btn pull-right btn-danger card-block-input-item">{{phrase.Return}}</button>
+                        <div class="pull-right card-block-input-group card-block-input-item">
+                            <div class="input-group input-group-sm">
+                                <input type="text" tooltip title="{{phrase.minCharLength3}}" name="table_search" ng-change="searchDB()" ng-model="searchText" placeholder="{{phrase.Search}}" class="form-control input-sm">
+                                <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                            </div>
+                        </div>
+                        <div class="pull-right card-block-input-group card-block-input-item">
+                            <div class="btn-group no-print">
+                                <button type="button" class="btn btn-success btn-flat">{{phrase.Export}}</button>
+                                <button type="button" class="btn btn-success btn-flat dropdown-toggle" data-toggle="dropdown">
+                                    <span class="caret"></span>
+                                    <span class="sr-only">{{phrase.toggleDropdown}}</span>
+                                </button>
+                                <div class="dropdown-menu" role="menu">
+                                    <a class="dropdown-item" href="index.php/onlineExams/export/{{marksExam}}/excel" target="_BLANK">{{phrase.ExportExcel}}</a>
+                                    <a class="dropdown-item" href="index.php/onlineExams/export/{{marksExam}}/pdf" target="_BLANK">{{phrase.ExportPDF}}</a>
+                                </div>
+                            </div>
+                        </div>
+                        <h4 class="card-title">{{phrase.listMarks}}</h4>
+                        <div class="table-responsive">
+
+                            <table class="table table-bordered table-hover">
+                                <tbody>
+                                    <tr>
+                                        <th>{{phrase.studentName}}</th>
+                                        <th>{{phrase.Grade}}</th>
+                                        <th>{{phrase.Date}}</th>
+                                        <th >{{phrase.showMarks}}</th>
+                                    </tr>
+                                    <tr ng-repeat="mark in marks| filter:searchText">
+                                        <td>
+                                            <img alt="{{mark.fullName}}" class="user-image img-circle" style="width:35px; height:35px;" ng-src="{{'index.php/dashboard/profileImage/' + mark.studentId}}">
+                                            <a href="" ng-click="studentProfile(mark.studentId)">{{mark.fullName}}</a>
+                                        </td>
+                                        <td>
+                                            <span ng-show="mark.examGrade == null">Not completed exam</span>
+                                            {{mark.examGrade}}
+                                            <span ng-show="isSuccess(examDegreeSuccess, mark.examGrade) == 'failed'" style="color:red; font-weight:bold;"> [ Failed ] </span>
+                                            <span ng-show="isSuccess(examDegreeSuccess, mark.examGrade) == 'success'" style="color:green; font-weight:bold;"> [ Succeded ] </span>
+                                        </td>
+                                        <td>{{mark.examDate}}</td>
+                                        <td>
+                                            <button ng-click="showStdMarks(mark.examQuestionsAnswers)" type="button" class="btn btn-success btn-circle" title="{{phrase.showMarks}}" tooltip><i class="fa fa-check-square-o"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Questions -->
+        <div class="row" ng-show="views.questions">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-click="changeView('quizzes')" class="btn btn-danger btn-flat pull-right card-block-input-item"><i class="fa fa-times" aria-hidden="true"></i> {{phrase.Return}}</button>
+                        <button ng-click="addNewQuestion()" class="btn btn-info btn-flat pull-right card-block-input-item"><i class="fa fa-plus" aria-hidden="true"></i> {{phrase.addQuestion}}</button>
+                        <h4 class="card-title">{{phrase.QuestionsArch}}</h4>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead><tr>
+                                        <th>{{phrase.Question}}</th>
+                                        <th>{{phrase.Subject}}</th>
+                                        <th>{{phrase.type}}</th>
+                                        <th>{{phrase.Operations}}</th>
+                                    </tr></thead>
+                                <tbody>
+                                    <tr ng-repeat="question in questionsList">
+                                        <td>{{question.question_text}}</td>
+                                        <td>{{subject_list[question.question_subject]}}</td>
+                                        <td>{{question.question_type}}</td>
+                                        <td>
+                                            <button ng-show="question.employee_id == dashboardData.baseUser.id" ng-click="editQuestionF(question.id)" type="button" class="btn btn-info btn-circle" title="{{phrase.Edit}}" tooltip><i class="fa fa-pencil"></i></button>
+                                            <button ng-show="question.employee_id == dashboardData.baseUser.id" ng-click="removeQuestionArch(question, $index)" type="button" class="btn btn-danger btn-circle" title="{{phrase.Remove}}" tooltip><i class="fa fa-trash-o"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr ng-show="!questionsList.length"><td class="noTableData" colspan="5">{{phrase.noDataAvailable}}</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Question -->
+        <div class="row" ng-show="views.addQuestion">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-click="changeView('questions')" class="btn btn-danger btn-flat pull-right card-block-input-item"><i class="fa fa-times" aria-hidden="true"></i> {{phrase.Return}}</button>
+                        <h4 class="card-title">{{phrase.addQuestion}}</h4>
+                        <div class="form">
+                            <form class="form-horizontal" name="addQuestion" role="form" ng-upload="saveQuestionAdd(content)" method="post" action="{{'index.php/onlineExams/questions'}}" novalidate>
+                                <div class="form-group row" ng-class="{'has-error': addQuestion.question_text.$invalid}">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">{{phrase.Question}}</label>
+                                    <div class="col-sm-10">
+                                        <textarea ck-editor name="question_text" class="form-control" ng-model="form.question_text" placeholder="{{phrase.Question}}"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">{{phrase.questionMark}}</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="question_mark" ng-model="form.question_mark" class="form-control" placeholder="{{phrase.questionMark}}">
+                                        {{phrase.emptyOneMark}}
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">{{phrase.sharedQues}}</label>
+                                    <div class="col-sm-10">
+                                        <input type="checkbox" name="is_shared" ng-model="form.is_shared" value="1" ng-true-value="1" ng-false-value="0" ng-checked="form.is_shared == '1'"> {{phrase.sharedQues}}
+                                        <small>{{phrase.markForShared}}</small>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">{{phrase.image}}</label>
+                                    <div class="col-sm-10">
+                                        <input type="file" name="question_image" ng-model="form.question_image" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': addQuestion.question_subject.$invalid}">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">{{phrase.Subject}}</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" id="question_subject" name="question_subject" ng-model="form.question_subject" required>
+                                            <option ng-repeat="(key,value) in subject_list" value="{{key}}">{{value}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': addQuestion.question_type.$invalid}">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">{{phrase.questionType}}</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" id="question_type" name="question_type" ng-model="form.question_type" required>
+                                            <option value="radio">{{phrase.oneOption}}</option>
+                                            <option value="check">{{phrase.multipleOption}}</option>
+                                            <option value="text">{{phrase.textValue}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-show="form.question_type == 'radio'">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">{{phrase.Answers}}</label>
+                                    <div class="col-sm-8">
+                                        <div class="row" ng-repeat="answer in form.answersList track by $index" style="padding-bottom:10px;">
+                                            <div class="col-sm-8">
+                                                <input type="text" name="radioAnswers[]" ng-model="form.radioAnswers[$index]" class="form-control">
+                                            </div>
+                                            <div class="col-sm-3 control-label">
+                                                <input type="radio" name="radioTrueAnswer" value="{{form.radioAnswers[$index]}}" ng-model="radioTrueAnswer"> {{phrase.trueAns}}
+                                            </div>
+                                            <div class="col-sm-1">
+                                                <button type="button" ng-click="delAnswer($index)" class="btn btn-danger" ng-disabled="$index == 0">x</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button type="button" ng-click="addAnswer()" class="btn btn-info">{{phrase.addAnswer}}</button>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-show="form.question_type == 'check'">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">{{phrase.Answers}}</label>
+                                    <div class="col-sm-8">
+                                        <div class="row" ng-repeat="answer in form.answersList track by $index" style="padding-bottom:10px;">
+                                            <div class="col-sm-8">
+                                                <input type="text" name="checkAnswers[]" ng-model="form.answersList[$index]" class="form-control">
+                                            </div>
+                                            <div class="col-sm-3 control-label">
+                                                <input type="checkbox" name="checkTrueAnswer[]" checklist-model="form.checkTrueAnswer" checklist-value="answer" value="{{answer}}"> {{phrase.trueAns}}
+                                            </div>
+                                            <div class="col-sm-1">
+                                                <button type="button" ng-click="delAnswer($index)" class="btn btn-danger" ng-disabled="$index == 0">x</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button type="button" ng-click="addAnswer()" class="btn btn-info">{{phrase.addAnswer}}</button>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-show="form.question_type == 'text'">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">{{phrase.Answers}}</label>
+                                    <div class="col-sm-8">
+                                        <div class="row" style="padding-bottom:10px;">
+                                            <div class="col-sm-12">
+                                                {{phrase.plzAddTruAns}}
+                                            </div>
+                                        </div>
+                                        <div class="row" ng-repeat="answer in form.answersList track by $index" style="padding-bottom:10px;">
+                                            <div class="col-sm-11">
+                                                <input type="text" name="textAnswers[]" ng-model="form.textAnswers[$index]" class="form-control">
+                                            </div>
+                                            <div class="col-sm-1">
+                                                <button type="button" ng-click="delAnswer($index)" class="btn btn-danger" ng-disabled="$index == 0">x</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button type="button" ng-click="addAnswer()" class="btn btn-success">{{phrase.addAnswer}}</button>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-offset-2 col-sm-10">
+                                        <button type="submit" class="btn btn-info" ng-disabled="addQuestion.$invalid">{{phrase.addQuestion}}</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Question -->
+        <div class="row" ng-show="views.editQuestion">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-click="changeView('questions')" class="btn btn-danger btn-flat pull-right card-block-input-item"><i class="fa fa-times" aria-hidden="true"></i> {{phrase.Return}}</button>
+                        <h4 class="card-title">{{phrase.editQuestion}}</h4>
+                        <div class="form">
+                            <form class="form-horizontal" name="editQuestion" role="form" ng-upload="saveQuestionEdit(content)" method="post" action="{{'onlineExams/questions/' + form.id}}" novalidate>
+                                <div class="form-group row" ng-class="{'has-error': editQuestion.question_text.$invalid}">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">{{phrase.Question}}</label>
+                                    <div class="col-sm-10">
+                                        <textarea ck-editor name="question_text" class="form-control" ng-model="form.question_text" placeholder="{{phrase.Question}}"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">{{phrase.questionMark}}</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="question_mark" ng-model="form.question_mark" class="form-control" placeholder="{{phrase.questionMark}}">
+                                        {{phrase.emptyOneMark}}
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">{{phrase.sharedQues}}</label>
+                                    <div class="col-sm-10">
+                                        <input type="checkbox" name="is_shared" ng-model="form.is_shared" value="1" ng-true-value="1" ng-false-value="0" ng-checked="form.is_shared == '1'"> {{phrase.sharedQues}}
+                                        <small>{{phrase.markForShared}}</small>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">{{phrase.image}}</label>
+                                    <div class="col-sm-10">
+                                        <input type="file" name="question_image" ng-model="form.question_image" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': editQuestion.question_subject.$invalid}">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">{{phrase.Subject}}</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" id="question_subject" name="question_subject" ng-model="form.question_subject" required>
+                                            <option ng-repeat="(key,value) in subject_list" value="{{key}}">{{value}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': editQuestion.question_type.$invalid}">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">{{phrase.questionType}}</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" id="question_type" name="question_type" ng-model="form.question_type" required>
+                                            <option value="radio" ng-selected="form.question_type == 'radio'">{{phrase.oneOption}}</option>
+                                            <option value="check" ng-selected="form.question_type == 'check'">{{phrase.multipleOption}}</option>
+                                            <option value="text" ng-selected="form.question_type == 'text'">{{phrase.textValue}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-show="form.question_type == 'radio'">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">{{phrase.Answers}}</label>
+                                    <div class="col-sm-8">
+                                        <div class="row" ng-repeat="answer in form.answersList track by $index" style="padding-bottom:10px;">
+                                            <div class="col-sm-8">
+                                                <input type="text" name="radioAnswers[]" ng-model="answer" class="form-control">
+                                            </div>
+                                            <div class="col-sm-3 control-label">
+                                                <input type="radio" name="radioTrueAnswer" value="{{answer}}" ng-checked="answer == form.radioTrueAnswer"> {{phrase.trueAns}}
+                                            </div>
+                                            <div class="col-sm-1">
+                                                <button type="button" ng-click="delAnswer($index)" class="btn btn-danger" ng-disabled="$index == 0">x</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button type="button" ng-click="addAnswer()" class="btn btn-info">{{phrase.addAnswer}}</button>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-show="form.question_type == 'check'">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">{{phrase.Answers}}</label>
+                                    <div class="col-sm-8">
+                                        <div class="row" ng-repeat="answer in form.answersList track by $index" style="padding-bottom:10px;">
+                                            <div class="col-sm-8">
+                                                <input type="text" name="checkAnswers[]" ng-model="form.answersList[$index]" class="form-control">
+                                            </div>
+                                            <div class="col-sm-3 control-label">
+                                                <input type="checkbox" name="checkTrueAnswer[]" checklist-model="form.checkTrueAnswer" checklist-value="answer" value="{{answer}}"> {{phrase.trueAns}}
+                                            </div>
+                                            <div class="col-sm-1">
+                                                <button type="button" ng-click="delAnswer($index)" class="btn btn-danger" ng-disabled="$index == 0">x</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button type="button" ng-click="addAnswer()" class="btn btn-info">{{phrase.addAnswer}}</button>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-show="form.question_type == 'text'">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">{{phrase.Answers}}</label>
+                                    <div class="col-sm-8">
+                                        <div class="row" style="padding-bottom:10px;">
+                                            <div class="col-sm-12">
+                                                {{phrase.plzAddTruAns}}
+                                            </div>
+                                        </div>
+                                        <div class="row" ng-repeat="answer in form.answersList track by $index" style="padding-bottom:10px;">
+                                            <div class="col-sm-11">
+                                                <input type="text" name="textAnswers[]" ng-model="answer" class="form-control">
+                                            </div>
+                                            <div class="col-sm-1">
+                                                <button type="button" ng-click="delAnswer($index)" class="btn btn-danger" ng-disabled="$index == 0">x</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button type="button" ng-click="addAnswer()" class="btn btn-success">{{phrase.addAnswer}}</button>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-offset-2 col-sm-10">
+                                        <button type="submit" class="btn btn-info" ng-disabled="editQuestion.$invalid">{{phrase.editQuestion}}</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grade Items -->
+        <div class="row" ng-show="views.gradeItems">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-show="$root.can('gradeItems.addItem')" ng-click="changeView('addGradeItem')" class="btn pull-right btn-success card-block-input-item">{{phrase.addItem}}</button>
+                        <div class="pull-right card-block-input-group card-block-input-item">
+                            <div class="input-group input-group-sm">
+                                <input type="text" name="table_search" ng-model="searchText" placeholder="{{phrase.Search}}" class="form-control input-sm">
+                                <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                            </div>
+                        </div>
+                        <h4 class="card-title">{{phrase.listItems}}</h4>
+                        <div class="table-responsive">
+
+                            <table class="table table-bordered table-hover">
+                                <tbody>
+                                    <tr>
+                                        <th>{{phrase.itemName}}</th>
+                                        <th>{{phrase.itemDesc}}</th>
+                                        <th>{{phrase.Date}}</th>
+                                        <th ng-show="$root.can('gradeItems.showMarks') || $root.can('gradeItems.controlMarksItem') || $root.can('gradeItems.itemDetailsNot') || $root.can('gradeItems.editItem') || $root.can('gradeItems.delItem')">{{phrase.Operations}}</th>
+                                    </tr>
+                                    <tr ng-repeat="item in gradeItems| filter:searchText">
+                                        <td>
+                                            <a ng-show="$root.can('gradeItems.View')" class="ahref" ng-click="itemDetails(item.id)">{{item.itemTitle}}</a>
+                                            <span ng-show="!$root.can('gradeItems.View')">{{item.itemTitle}}</span>
+                                        </td>
+                                        <td>{{item.itemDescription}}</td>
+                                        <td>{{item.itemDate}} </td>
+                                        <td ng-show="$root.can('gradeItems.showMarks') || $root.can('gradeItems.controlMarksItem') || $root.can('gradeItems.itemDetailsNot') || $root.can('gradeItems.editItem') || $root.can('gradeItems.delItem')">
+
+                                            <button ng-show="$root.can('gradeItems.showMarks') || $root.can('gradeItems.controlMarksItem')" ng-click="gradeItemMarks(item)" type="button" class="btn btn-success btn-circle" title="{{phrase.showMarks}}" tooltip><i class="fa fa-check-square-o"></i></button>
+
+                                            <!--<button ng-show="$root.can('gradeItems.showMarks')  || $root.can('gradeItems.controlMarksItem')" ng-click="marksData(item.id)" type="button" class="btn btn-success btn-circle" title="{{phrase.showMarks}}" tooltip><i class="fa fa-check-square-o"></i></button>-->
+                                            <button ng-show="$root.can('gradeItems.itemDetailsNot')" ng-click="gradeItemNotify(item.id)" type="button" class="btn btn-success btn-circle" title="{{phrase.sendItemMarks}}" tooltip><i class="fa fa fa-warning"></i></button>
+                                            <button ng-show="$root.can('gradeItems.editItem')" ng-click="editGradeItem(item.id)" type="button" class="btn btn-info btn-circle" title="{{phrase.Edit}}" tooltip><i class="fa fa-pencil"></i></button>
+                                            <button ng-show="$root.can('gradeItems.delItem')" ng-click="removeGradeItem(item, $index)" type="button" class="btn btn-danger btn-circle" title="{{phrase.Remove}}" tooltip><i class="fa fa-trash-o"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr ng-show="!gradeItems.length"><td class="noTableData" colspan="5">{{phrase.noItems}}</td></tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Grade Item -->
+        <div class="row" ng-show="views.addGradeItem">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-click="changeView('gradeItems')" class="btn btn-danger btn-flat pull-right card-block-input-item">{{phrase.cancelAdd}}</button>
+                        <h4 class="card-title">{{phrase.addItem}}</h4>
+                        <div class="form">
+
+                            <form class="form-horizontal" name="addGradeItem" role="form" ng-submit="saveAddGradeItem()" novalidate>
+                                <div class="form-group row" ng-class="{'has-error': addItem.itemTitle.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.itemName}} * </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="itemTitle" ng-model="form.itemTitle" class="form-control" required placeholder="{{phrase.itemName}}">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.itemDesc}}</label>
+                                    <div class="col-sm-10">
+                                        <textarea name="itemDescription" class="form-control" ng-model="form.itemDescription" placeholder="{{phrase.itemDesc}}"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': addItem.itemClasses.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.classes}}</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.itemClasses" name="itemClasses" multiple>
+                                            <option ng-repeat="class in classes" value="{{class.id}}">{{class.className}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': addItem.itemDate.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.Date}} *</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" date-picker name="itemDate" ng-model="form.itemDate" class="form-control datemask" id="datemask" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': addItem.itemWeight.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.itemWeight}} * </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="itemWeight" ng-model="form.itemWeight" class="form-control" required placeholder="{{phrase.itemWeight}}">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-offset-2 col-sm-10">
+                                        <button type="submit" class="btn btn-info btn-default" ng-disabled="addItem.$invalid || $isUploading">{{phrase.addItem}}</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Grade Item -->
+        <div class="row" ng-show="views.editGradeItem">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-click="changeView('gradeItems')" class="btn pull-right btn-danger card-block-input-item">{{phrase.cancelEdit}}</button>
+                        <h4 class="card-title">{{phrase.editItem}}</h4>
+                        <div class="form">
+
+                            <form class="form-horizontal" name="editItem" role="form" ng-submit="saveEditGradeItem()" novalidate>
+                                <div class="form-group row" ng-class="{'has-error': editItem.itemTitle.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.itemName}} *</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="itemTitle" ng-model="form.itemTitle" class="form-control" required placeholder="{{phrase.itemName}}">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.itemDesc}}</label>
+                                    <div class="col-sm-10">
+                                        <textarea name="itemDescription" class="form-control" ng-model="form.itemDescription" placeholder="{{phrase.itemDesc}}"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': editItem.itemClasses.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.classes}}</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.itemClasses" name="itemClasses" multiple>
+                                            <option ng-repeat="class in classes" value="{{class.id}}">{{class.className}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': editItem.itemDate.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.Date}} *</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" date-picker name="itemDate" ng-model="form.itemDate" class="form-control datemask" id="datemaskEdit" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': addItem.itemWeight.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.itemWeight}} * </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="itemWeight" ng-model="form.itemWeight" class="form-control" required placeholder="{{phrase.itemWeight}}">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-offset-2 col-sm-10">
+                                        <button type="submit" class="btn btn-info btn-default" ng-disabled="editItem.$invalid || $isUploading">{{phrase.editItem}}</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Premarks Grade Item -->
+        <div class="row" ng-show="views.premarksGradeItem">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-click="changeView('gradeItems')" class="btn pull-right btn-danger card-block-input-item">{{phrase.Return}}</button>
+                        <h4 class="card-title">{{phrase.selClassSubItem}}</h4>
+                        <div class="form">
+
+                            <form class="form-horizontal" name="selectcs" role="form" ng-submit="startAddGradeItemMarks()" novalidate>
+                                <div class="form-group row" ng-class="{'has-error': selectcs.classId.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.class}}</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.class_id" required name="class_id" ng-change="sectionsList()">
+                                            <option ng-repeat="class in markClasses" value="{{class.id}}">{{class.className}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row" ng-class="{'has-error': selectcs.sectionId.$invalid}" ng-show="$root.dashboardData.enableSections == '1'">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.section}} *</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.sectionId" ng-required="$root.dashboardData.enableSections == '1'" name="sectionId">
+                                            <option ng-repeat="section in sections" value="{{section.id}}">{{section.sectionName}} - {{section.sectionTitle}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-offset-2 col-sm-10">
+                                        <button type="submit" class="btn btn-info btn-default" ng-disabled="selectcs.$invalid">{{phrase.addMarks}}</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Marks Grade Item -->
+        <div class="row" ng-show="views.marksGradeItem">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-click="changeView('gradeItems')" class="btn pull-right btn-danger card-block-input-item">{{phrase.Return}}</button>
+                        <a href="javascript:window.print()"><button class="btn pull-right btn-success card-block-input-item">{{phrase.Print}}</button></a>
+                        <h4 class="card-title"><br>Item: <b>{{form.respItem.itemTitle}}</b> in {{phrase.class}}: <b>{{form.respClass.className}}</b> for {{phrase.Subject}}: <b>{{form.respSubject.subjectTitle}}</b></h4>
+                        <div class="form table-responsive">
+
+                            <form class="form-horizontal" ng-submit="saveNewGradeItemMarks()" name="form" novalidate>
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <th style="width: 10px">#</th>
+                                            <th>{{phrase.studentName}}</th>
+                                            <th ng-repeat="itemSheetColumn in form.respItem.itemMarksheetColumns">{{itemSheetColumn.title}}</th>
+                                            <th>{{phrase.Mark}}</th>
+                                            <th>{{phrase.MaxMark}}</th>
+                                            <th>{{phrase.Comments}}</th>
+                                        </tr>
+                                        <tr ng-repeat="mark in form.respStudents| object2Array | orderBy:'studentRollId'">
+                                            <td>{{mark.studentRollId}}</td>
+                                            <td><a href="" ng-click="studentProfile(mark.id)">{{mark.name}}</a></td>
+                                            <td ng-repeat="itemSheetColumn in form.respItem.itemMarksheetColumns"> <input type="text" ng-model="mark.itemMark[itemSheetColumn.id]"> </td>
+                                            <td> <input type="text" ng-model="mark.totalMarks"> </td>
+                                            <td> <input type="text" ng-model="mark.maxMark"> </td>
+                                            <td> <input type="text" ng-model="mark.markComments"> </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <br/>
+                                <div class="form-group row">
+                                    <div class="col-sm-offset-2 col-sm-10">
+                                        <button type="submit" class="btn btn-default">{{phrase.addUpdateMarks}}</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Item Details Grade Item -->
+        <div class="row" ng-show="views.itemDetailsGradeItem">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-click="changeView('gradeItems')" class="btn pull-right btn-danger card-block-input-item">{{phrase.Return}}</button>
+                        <h4 class="card-title">{{phrase.itemName}}</h4>
+                        <div class="form">
+
+                            <div class="form-group row">
+                                <label class="col-sm-2 text-right control-label col-form-label">{{phrase.itemName}}</label>
+                                <div class="col-sm-10">
+                                    {{form.itemTitle}}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 text-right control-label col-form-label">{{phrase.itemDesc}}</label>
+                                <div class="col-sm-10">
+                                    {{form.itemDescription}}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 text-right control-label col-form-label">{{phrase.classes}}</label>
+                                <div class="col-sm-10">
+                                    <span ng-repeat="class in form.itemClassesNames">{{class.className}}<br/></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 text-right control-label col-form-label">{{phrase.itemWeight}}</label>
+                                <div class="col-sm-10">
+                                    {{form.itemWeight}}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 text-right control-label col-form-label">{{phrase.Date}}</label>
+                                <div class="col-sm-10">
+                                    {{form.itemDate}}
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Post -->
+        <div class="row" ng-show="views.post">
+            <div class="col-sm-12">
+                <div class="alert alert-info text-center">
+                    Coming Soon..
+                </div>
+            </div>
+        </div>
+
+        <!-- Lectures -->
+        <div class="row" ng-show="views.lectures">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button  ng-click="changeView('addLecture')" class="btn pull-right btn-success card-block-input-item">{{phrase.addLecture}}</button>
+
+                        <a target="_blank" class="btn pull-right btn-primary card-block-input-item" href="https://meet.tap2school.com/mathLecture2632020">Live Lecture</a>
+                        <div class="pull-right card-block-input-group card-block-input-item">
+                            <div class="input-group input-group-sm">
+                                <input type="text"  name="table_search" ng-model="searchInput" placeholder="{{phrase.Search}}" ng-change="searchDB()" class="form-control input-sm">
+                                <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                            </div>
+                        </div>
+                        <h4 class="card-title">{{phrase.listLectures}}</h4>
+                        <div class="table-responsive">
+
+                            <table class="table table-bordered table-hover">
+                                <tbody>
+                                    <tr>
+                                        <th>{{phrase.lectureTitle}}</th>
+                                        <th>{{phrase.lectureDesc}}</th>
+                                        <th ng-show="$root.can('studyMaterial.Download') || $root.can('studyMaterial.editMaterial') || $root.can('studyMaterial.delMaterial')">{{phrase.Operations}}</th>
+                                    </tr>
+                                    <tr ng-repeat="lecture in lectures" total-items="totalItems">
+                                        <td>{{lecture.lectureTitle}}</td>
+                                        <td>{{lecture.lectureDescription}}</td>
+                                        <td ng-show="$root.can('studyMaterial.Download') || $root.can('studyMaterial.editMaterial') || $root.can('studyMaterial.delMaterial')">
+                                            <!--<button ng-show="$root.can('studyMaterial.editMaterial')" ng-click="playLecture(lecture.id)" type="button" class="btn btn-info btn-circle" title="{{phrase.play}}" tooltip><i class="fa fa-play"></i></button>-->
+                                            <a ng-show="$root.can('studyMaterial.editMaterial')" target="_blank" href="{{lecture.url}}" type="button" class="btn btn-success btn-circle" title="{{phrase.play}}" tooltip><i class="fa fa-play"></i></a>
+                                            <button        ng-click="editlecture(lecture.id)" type="button" class="btn btn-info btn-circle" title="{{phrase.Edit}}" tooltip><i class="fa fa-pencil"></i></button>
+                                            <button ng-click="removeLecture(lecture, $index)" type="button" class="btn btn-danger btn-circle" title="{{phrase.Remove}}" tooltip><i class="fa fa-trash-o"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr ng-show="materials.length == '0'"><td class="noTableData" colspan="5">{{phrase.noMaterialData}}</td></tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Play lecture -->
+        <div class="row" ng-show="views.playLecture">
+            <button ng-show="$root.can('studyMaterial.addMaterial')" ng-click="changeView('lectures')" class="btn pull-right btn-success card-block-input-item">{{phrase.listLectures}}</button><br>
+            <iframe ng-show="lectureVideo.external == 'true'" width="100%" height="400" src="{{lectureVideo.url}}" title="description"></iframe>
+            <video ng-show="lectureVideo.external == 'false'"  width="100%" height="400" controls>
+                <source src="{{lectureVideo.url}}" type="video/mp4">
+                <source src="{{lectureVideo.url}}" type="video/ogg">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+
+
+        <!-- Add lecture -->       
+        <div class="row" ng-show="views.addLecture">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-click="changeView('lectures')" class="btn btn-danger btn-flat pull-right card-block-input-item">{{phrase.cancelAdd}}</button>
+                        <h4 class="card-title">{{phrase.addLecture}}</h4>
+                        <div class="table-responsive">
+
+                            <form class="form-horizontal" name="addLecture" role="form" ng-upload="saveAddLecture(content)" method="post" action="{{'index.php/overview/lecture'}}" novalidate>
+                                <div class="form-group row" ng-class="{'has-error': addEvent.lectureTitle.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.lectureTitle}} * </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="lectureTitle" ng-model="form.lectureTitle" class="form-control" required placeholder="{{phrase.lectureTitle}}">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.lectureDescription}}</label>
+                                    <div class="col-sm-10">
+                                        <textarea ck-editor name="lectureDescription" class="form-control" ng-model="form.lectureDescription" placeholder="{{phrase.lectureDescription}}"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.teacherId}}</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.teacherId" name="teacherId" ng-change="classesList()" ng-init="">
+                                            <option ng-repeat="teacher in teachers" value="{{teacher.id}}">{{teacher.fullName}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.classId}}</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.classId" name="classId" ng-change="subjectList()">
+                                            <option ng-repeat="singleClass in classes" value="{{singleClass.id}}">{{singleClass.className}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <input type="hidden" ng-model="form.subjectId" name="subjectId" value="{{subject.id}}">
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.url}} *</label>
+                                    <div class="col-sm-10">
+                                        <input type="file" name="url">
+                                    </div>
+                                </div>
+                                <div class="form-group row" >
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.lectureStatus}} *</label>
+                                    <div class="col-sm-10">
+
+                                        <div class="radio-list">
+                                            <label>
+                                                <input type="radio" name="lectureStatus" value="1" ng-model="form.lectureStatus" >
+                                                {{phrase.Active}}
+                                            </label>
+                                        </div>
+                                        <div class="radio-list">
+                                            <label>
+                                                <input type="radio" name="lectureStatus" value="0" ng-model="form.lectureStatus" >
+                                                {{phrase.Inactive}}
+                                            </label>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="form-group m-b-0">
+                                    <div class="offset-sm-2 col-sm-10">
+                                        <button type="submit" class="btn btn-info waves-effect waves-light" ng-disabled="addLecture.$invalid">{{phrase.addLecture}}</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" ng-show="views.editLecture">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-block">
+                        <button ng-click="changeView('lectures')" class="btn btn-danger btn-flat pull-right card-block-input-item">{{phrase.cancelEdit}}</button>
+                        <h4 class="card-title">{{phrase.editLecture}}</h4>
+                        <div class="table-responsive">
+
+                            <form class="form-horizontal" name="editLecture" role="form" ng-upload="saveEdit(content)" method="post" action="{{'index.php/lectures/' + form.id}}" novalidate>
+                                <div class="form-group row" ng-class="{'has-error': editLecture.lectureTitle.$invalid}">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.lectureTitle}} * </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="lectureTitle" ng-model="form.lectureTitle" class="form-control" required placeholder="{{phrase.lectureTitle}}">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.lectureDescription}}</label>
+                                    <div class="col-sm-10">
+                                        <textarea ck-editor name="lectureDescription" class="form-control" ng-model="form.lectureDescription" placeholder="{{phrase.lectureDescription}}"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.teacherId}}</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.teacherId" name="teacherId" ng-change="classesList()" ng-init="teacherList()">
+                                            <option ng-repeat="teacher in teachers" value="{{teacher.id}}"   >{{teacher.fullName}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.classId}}</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.classId" name="classId" ng-change="subjectList()" ng-init="classesList()">
+                                            <option ng-repeat="singleClass in classes" value="{{singleClass.id}}" >{{singleClass.className}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.subjectId}}</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" ng-model="form.subjectId" name="subjectId" ng-init="">
+                                            <option ng-repeat="subject in subjects" value="{{subject.id}}" >{{subject.subjectTitle}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right control-label col-form-label">{{phrase.url}} *</label>
+                                    <div class="col-sm-10">
+                                        <input type="file" name="url">
+                                    </div>
+                                </div>
+                                <div class="form-group m-b-0">
+                                    <div class="offset-sm-2 col-sm-10">
+                                        <button type="submit" class="btn btn-info waves-effect waves-light" ng-disabled="editLecture.$invalid">{{phrase.editLecture}}</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+<modal visible="showModal"><div ng-bind-html="modalContent"></div></modal>
+
+<modal visible="showstdAnswerModal">
+    <table class="table table-bordered m-n">
+        <thead>
+            <tr>
+                <th>{{phrase.Question}}</th>
+                <th>{{phrase.Answers}}</th>
+                <th>{{phrase.Status}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="answer in studentAnswers">
+                <td>{{answer.question_text}}</td>
+                <td>{{answer.userAnswer}}</td>
+                <td>
+                    <span ng-show="answer.state == '1'">{{phrase.trueAns}}</span>
+                    <span ng-show="answer.state != '1'">{{phrase.falseAns}}</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</modal>
+
+<modal visible="addQuestionModal">
+
+    <div class="row">
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="searchQuestion" placeholder="{{phrase.quesDetails}}">
+        </div>
+        <div class="col-sm-2">
+            <button type="button" ng-click="searchQuestion()" class="btn btn-danger ">{{phrase.Search}}</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12" style="padding-top:10px;">
+            <div class="box-body table-responsive">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr ng-repeat="question in searchResults">
+                            <td>{{question.question_text}}</td>
+                            <td>{{question.question_type}}</td>
+                            <td class="no-print">
+                                <button type="button" ng-click="addQuestion2List(question)" class="btn btn-success ">{{phrase.select}}</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <button type="submit" ng-click="closeAnswerOM()" class="btn btn-danger">{{phrase.close}}</button>
+        </div>
+    </div>
+
+</modal>

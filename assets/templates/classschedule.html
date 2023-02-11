@@ -1,0 +1,329 @@
+<div class="row page-titles">
+    <div class="col-md-6 col-8 align-self-center">
+        <h3 class="text-themecolor m-b-0 m-t-0">{{phrase.classSch}}</h3>
+    </div>
+    <div class="col-md-6 col-4 align-self-center">
+
+    </div>
+</div>
+
+<div class="row" ng-show="views.list">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-block">
+                <div class="pull-right card-block-input-group card-block-input-item">
+                    <div class="input-group input-group-sm">
+                        <button ng-click="changeView('periods')" class="btn no-print pull-right btn-info card-block-input-item">{{phrase.Periods}}</button>
+                        <input type="text"  name="table_search" ng-model="searchText" placeholder="{{phrase.Search}}" class="form-control input-sm">
+                        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                    </div>
+                </div>
+                <h4 class="card-title" ng-show="userRole == 'admin'">{{phrase.classEditSch}}</h4>
+                <div class="table-responsive">
+
+                    <div ng-repeat="(key,value) in sections" ng-show="$root.dashboardData.enableSections == '1'">
+                        <h4>{{key}}</h4>
+                        <table class="table table-bordered table-hover">
+                            <tbody>
+                                <tr>
+                                    <th>{{phrase.section}} </th>
+                                    <th>{{phrase.sectionTitle}}</th>
+                                    <th>{{phrase.Operations}}</th>
+                                </tr>
+                                <tr ng-repeat="section in value| filter:searchText">
+                                    <td>{{section.sectionName}}</td>
+                                    <td>{{section.sectionTitle}}</td>
+                                    <td>
+                                        <button ng-click="edit(section.classId, section.id)" type="button" class="btn btn-info btn-circle" title="{{phrase.ReadSchedule}}" tooltip><i class="fa fa-fw fa-th-list"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <table class="table table-bordered table-hover" ng-show="$root.dashboardData.enableSections != '1'">
+                        <tbody>
+                            <tr>
+                                <th>{{phrase.ID}}</th>
+                                <th>{{phrase.className}}</th>
+                                <th>{{phrase.Operations}}</th>
+                            </tr>
+                            <tr ng-repeat="class in classes| filter:searchText">
+                                <td>{{class.id}}</td>
+                                <td>{{class.className}}</td>
+                                <td>
+                                    <button ng-click="edit(class.id)" type="button" class="btn btn-info btn-circle" title="{{phrase.ReadSchedule}}" tooltip><i class="fa fa-fw fa-th-list"></i></button>
+                                </td>
+                            </tr>
+                            <tr ng-show="!classes.length"><td class="noTableData" colspan="3">{{phrase.NoClasses}}</td></tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" ng-show="views.edit">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-block">
+                <button ng-click="changeView('list')" class="btn no-print pull-right btn-danger card-block-input-item">{{phrase.Return}}</button>
+                <button onclick="window.print();" class="btn no-print pull-right btn-success card-block-input-item">{{phrase.Print}}</button>
+                <h4 class="card-title no-print">{{phrase.classSch}} : {{phrase.class}} {{classSchedule.class.className}}, <span ng-show="classSchedule.section">{{phrase.section}} {{classSchedule.section.sectionTitle}}</span></h4>
+                <div class="table-responsive">
+
+                    <form class="form-horizontal" name="editDorm" role="form" ng-submit="saveEdit()" novalidate>
+                        <table class="table table-bordered table-hover">
+                            <tbody>
+                                <tr>
+                                    <th style="width: 10px">{{phrase.Day}}</th>
+                                    <th ng-repeat="period in classSchedule.periods">{{period.name}}<br><small>{{period.fromTime}} -> {{period.toTime}}</small></th>
+                                </tr>
+                                <tr ng-repeat="(key,sch) in classSchedule.schedule">
+                                    <td>{{sch.dayName}}</td>
+                                    <td ng-repeat="period in classSchedule.periods">
+                                        <div ng-if="sch.sub[period.id].subjectId" class="class_sch_card"> 
+                                            <a href="#" class="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><h4>{{sch.sub[period.id].subjectId}}</h4>
+                                                <h5>{{sch.sub[period.id].teacherId}}</h5></a>
+                                            <div  ng-if="$root.can('classSch.editSch') || $root.can('classSch.delSch')" class="dropdown-menu">
+                                                <a ng-show="$root.can('classSch.editSch')" class="dropdown-item" ng-click="editSubOne(sch.sub[period.id].id, key)">{{phrase.Edit}}</a>
+                                                <a ng-show="$root.can('classSch.delSch')" class="dropdown-item" ng-click="removeSub(sch.sub[period.id].id, key)">{{phrase.Remove}}</a>
+                                            </div>
+
+                                        </div>
+
+                                        <button ng-show="$root.can('classSch.addSch') && !sch.sub[period.id].subjectId" ng-if="period.is_break == 'false'" ng-click="addSubOne(key, period.id, period.fromTime, period.toTime)" type="button" class="btn btn-info "><i class="fa fa-fw fa-plus"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="row" ng-show="views.periods">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-block">
+                <button ng-click="changeView('list')" class="btn no-print pull-right btn-danger card-block-input-item">{{phrase.Return}}</button>
+                <button ng-click="addPeriod()" class="btn no-print pull-right btn-success card-block-input-item">{{phrase.addPeriod}}</button>
+                <h4 class="card-title no-print">{{phrase.Periods}}</h4>
+                <div class="table-responsive">
+
+                    <form class="form-horizontal" name="editDorm" role="form" ng-submit="saveEdit()" novalidate>
+                        <table class="table table-bordered table-hover">
+                            <tbody>
+                                <tr>
+                                    <th style="width: 10px">{{phrase.name}}</th>
+                                    <th style="width: 10px">{{phrase.from}}</th>
+                                    <th style="width: 10px">{{phrase.to}}</th>
+                                    <th style="width: 10px">{{phrase.isBreak}}</th>
+                                    <th style="width: 10px">{{phrase.Operations}}</th>
+                                </tr>
+                                <tr ng-repeat="period in periods">
+                                    <td>{{period.name}}</td>
+                                    <td>{{period.fromTime}}</td>
+                                    <td>{{period.toTime}}</td>
+                                    <td>{{period.is_break}}</td>
+                                    <td>    
+                                        <button ng-click="editPeriodOne(period.id)" type="button" class="btn btn-info btn-circle" title="{{phrase.Edit}}" tooltip><i class="fa fa-pencil"></i></button>
+                                        <button ng-click="deletePeriod(period.id)" type="button" class="btn btn-danger btn-circle" title="{{phrase.Remove}}" tooltip><i class="fa fa-trash-o"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<modal visible="scheduleModal">
+    <form class="form-horizontal" name="addSubForm" role="form" ng-submit="saveAddSub()" novalidate>
+        <div class="form-group row" ng-class="{'has-error': addSubForm.subjectId.$invalid}">
+            <label class="col-sm-4 control-label">{{phrase.Subject}} *</label>
+            <div class="col-sm-8">
+                <select class="form-control" ng-model="form.subjectId" required name="subjectId">
+                    <option ng-repeat="subjectOne in subject" value="{{subjectOne.id}}">{{subjectOne.subjectTitle}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row" ng-class="{'has-error': addSubForm.dayOfWeek.$invalid}">
+            <label class="col-sm-4 control-label">{{phrase.teacher}} *</label>
+            <div class="col-sm-8">
+                <select class="form-control" ng-model="form.teacherId" required name="teacherId">
+                    <option ng-repeat="value in teachers" value="{{value.id}}">{{value.fullName}}</option>
+                </select>
+            </div>
+        </div>
+        <input type="hidden" name="periodId" ng-model="form.periodId">
+        <input type="hidden" name="dayOfWeek" ng-model="form.dayOfWeek">
+        <input type="hidden" name="fromTime" ng-model="form.fromTime">
+        <input type="hidden" name="toTime" ng-model="form.toTime" >
+        <div class="form-group m-b-0">
+            <div class="offset-sm-2 col-sm-10">
+                <button type="submit" class="btn btn-info waves-effect waves-light" ng-disabled="addSubForm.$invalid">{{phrase.addSch}}</button>
+            </div>
+        </div>
+    </form>
+</modal>
+
+<modal visible="scheduleModalEdit">
+    <form class="form-horizontal" name="editSubForm" role="form" ng-submit="saveEditSub(form.id)" novalidate>
+        <div class="form-group row" ng-class="{'has-error': editSubForm.subjectId.$invalid}">
+            <label class="col-sm-4 control-label">{{phrase.Subject}} *</label>
+            <div class="col-sm-8">
+                <select class="form-control" ng-model="form.subjectId" required name="subjectId">
+                    <option ng-repeat="subjectOne in subject" value="{{subjectOne.id}}">{{subjectOne.subjectTitle}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row" ng-class="{'has-error': addSubForm.dayOfWeek.$invalid}">
+            <label class="col-sm-4 control-label">{{phrase.teacher}} *</label>
+            <div class="col-sm-8">
+                <select class="form-control" ng-model="form.teacherId" required name="teacherId">
+                    <option ng-repeat="value in teachers" value="{{value.id}}">{{value.fullName}}</option>
+                </select>
+            </div>
+        </div>
+        <input type="hidden" name="periodId" ng-model="form.periodId">
+        <input type="hidden" name="dayOfWeek" ng-model="form.dayOfWeek">
+        <input type="hidden" name="fromTime" ng-model="form.fromTime">
+        <input type="hidden" name="toTime" ng-model="form.toTime" >
+        <div class="form-group m-b-0">
+            <div class="offset-sm-2 col-sm-10">
+                <button type="submit" class="btn btn-info waves-effect waves-light" ng-disabled="editSubForm.$invalid">{{phrase.editSch}}</button>
+            </div>
+        </div>
+    </form>
+</modal>
+
+
+<modal visible="periodModal">
+    <form class="form-horizontal" name="addPeriodForm" role="form" ng-submit="saveAddPeriod()" novalidate>
+        <div class="form-group row" >
+            <label class="col-sm-4 control-label">{{phrase.name}} *</label>
+            <div class="col-sm-8">
+                <input class="form-control" name="name" ng-model="form.name">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-4 control-label">{{phrase.isBreak}} *</label>
+            <div class="col-sm-8">
+                <select class="form-control" ng-model="form.is_break" required name="is_break">
+                    <option value="true">{{phrase.true}}</option>
+                    <option value="false">{{phrase.false}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row" >
+            <label class="col-sm-4 control-label">{{phrase.from}} *</label>
+            <div class="col-sm-8">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <select class="form-control" ng-model="form.startTimeHour" required name="startTimeHour">
+                            <option ng-repeat="i in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]" value="{{i}}">{{i}}</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <select class="form-control" ng-model="form.startTimeMin" required name="startTimeMin">
+                            <option ng-repeat="i in [00, 05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]" value="{{i}}">{{i}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row" >
+            <label class="col-sm-4 control-label">{{phrase.to}} *</label>
+            <div class="col-sm-8">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <select class="form-control" ng-model="form.endTimeHour" required name="endTimeHour">
+                            <option ng-repeat="i in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]" value="{{i}}">{{i}}</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <select class="form-control" ng-model="form.endTimeMin" required name="endTimeMin">
+                            <option ng-repeat="i in [00, 05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]" value="{{i}}">{{i}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group m-b-0">
+            <div class="offset-sm-2 col-sm-10">
+                <button type="submit" class="btn btn-info waves-effect waves-light" ng-disabled="addPeriodForm.$invalid">{{phrase.addPeriod}}</button>
+            </div>
+        </div>
+    </form>
+</modal>
+
+
+<modal visible="periodModalEdit">
+    <form class="form-horizontal" name="editPeriodForm" role="form" ng-submit="saveEditPeriod(form.id)" novalidate>
+        <div class="form-group row" >
+            <label class="col-sm-4 control-label">{{phrase.name}} *</label>
+            <div class="col-sm-8">
+                <input class="form-control" name="name" ng-model="form.name">
+            </div>
+        </div>
+        <div class="form-group row" >
+            <label class="col-sm-4 control-label">{{phrase.isBreak}} *</label>
+            <div class="col-sm-8">
+                <select class="form-control" ng-model="form.is_break" required name="is_break">
+                    <option value="true">{{phrase.true}}</option>
+                    <option value="false">{{phrase.false}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row" >
+            <label class="col-sm-4 control-label">{{phrase.from}} *</label>
+            <div class="col-sm-8">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <select class="form-control" ng-model="form.startTimeHour" required name="startTimeHour">
+                            <option ng-repeat="i in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]" value="{{i}}">{{i}}</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <select class="form-control" ng-model="form.startTimeMin" required name="startTimeMin">
+                            <option ng-repeat="i in [00, 05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]" value="{{i}}">{{i}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row" >
+            <label class="col-sm-4 control-label">{{phrase.to}} *</label>
+            <div class="col-sm-8">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <select class="form-control" ng-model="form.endTimeHour" required name="endTimeHour">
+                            <option ng-repeat="i in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]" value="{{i}}">{{i}}</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <select class="form-control" ng-model="form.endTimeMin" required name="endTimeMin">
+                            <option ng-repeat="i in [00, 05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]" value="{{i}}">{{i}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group m-b-0">
+            <div class="offset-sm-2 col-sm-10">
+                <button type="submit" class="btn btn-info waves-effect waves-light" ng-disabled="editPeriodForm.$invalid">{{phrase.editSch}}</button>
+            </div>
+        </div>
+    </form>
+</modal>
